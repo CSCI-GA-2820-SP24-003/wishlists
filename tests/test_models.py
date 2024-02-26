@@ -1,11 +1,12 @@
 """
 Test cases for Pet Model
 """
+
 import os
 import logging
 from unittest import TestCase
 from wsgi import app
-from service.models import YourResourceModel, DataValidationError, db
+from service.models import Wishlist, DataValidationError, db
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -13,11 +14,11 @@ DATABASE_URI = os.getenv(
 
 
 ######################################################################
-#  YourResourceModel   M O D E L   T E S T   C A S E S
+#  Wishlist   M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
-class TestYourResourceModel(TestCase):
-    """ Test Cases for YourResourceModel Model """
+class TestWishlist(TestCase):
+    """Test Cases for Wishlist Model"""
 
     @classmethod
     def setUpClass(cls):
@@ -30,12 +31,12 @@ class TestYourResourceModel(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
         """This runs before each test"""
-        db.session.query(YourResourceModel).delete()  # clean up the last tests
+        db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -46,9 +47,15 @@ class TestYourResourceModel(TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
-    def test_example_replace_this(self):
-        """ It should always be true """
-        # Todo: Remove this test case example
-        self.assertTrue(True)
-
-    # Todo: Add your test cases here...
+    def test_find_wishlist_by_id(self):
+        """It should return a wishlist by id"""
+        wishlist = Wishlist(
+            name="test wishlist", user_id=1, description="test description"
+        )
+        wishlist.create()
+        result = Wishlist.find(wishlist.id)
+        self.assertIsNot(result, None)
+        self.assertEqual(result.id, wishlist.id)
+        self.assertEqual(result.name, wishlist.name)
+        self.assertEqual(result.user_id, wishlist.user_id)
+        self.assertEqual(result.description, wishlist.description)
