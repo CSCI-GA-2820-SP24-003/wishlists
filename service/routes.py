@@ -14,16 +14,19 @@
 # limitations under the License.
 ######################################################################
 
+# cspell:ignore jsonify, wishlist, app, id
+# pylint: disable=W0622
 """
-Pet Store Service
+Wishlists Service
 
 This service implements a REST API that allows you to Create, Read, Update
-and Delete Pets from the inventory of pets in the PetShop
+and Delete Wishlists
 """
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import YourResourceModel
+
+from service.models import Wishlist
 from service.common import status  # HTTP Status Codes
 
 
@@ -32,9 +35,14 @@ from service.common import status  # HTTP Status Codes
 ######################################################################
 @app.route("/")
 def index():
-    """ Root URL response """
+    """Root URL response"""
     return (
-        "Reminder: return some useful information in json format about the service here",
+        jsonify(
+            name="Wishlists Service",
+            version="0.1.0",
+            # url=url_for("list_wishlists", _external=True),
+            url="/",
+        ),
         status.HTTP_200_OK,
     )
 
@@ -43,4 +51,15 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-# Todo: Place your REST API code here ...
+
+######################################################################
+# Read a single Wishlist
+######################################################################
+@app.route("/wishlists/<int:id>", methods=["GET"])
+def read_wishlist(id: int):
+    """Read a single Wishlist API endpoint"""
+    app.logger.info("Request to Read a wishlist with id: %s", id)
+    wishlist = Wishlist.find(id)
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with id '{id}' was not found.")
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
