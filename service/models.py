@@ -1,5 +1,5 @@
 """
-Models for YourResourceModel
+Models for wishlist and wishlist ite,s
 
 All of the models are stored in this module
 """
@@ -16,25 +16,28 @@ class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
 
-class YourResourceModel(db.Model):
+class Wishlist(db.Model):
     """
-    Class that represents a YourResourceModel
+    Class that represents a wishlist
     """
 
     ##################################################
-    # Table Schema
+    # Wishlist Table Schema
     ##################################################
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
-
-    # Todo: Place the rest of your schema here...
+    id = db.Column(db.Integer, primary_key=True)                
+    name = db.Column(db.String(255), nullable=False)            
+    description = db.Column(db.String(255), nullable=True)      
+    user_id = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    last_updated_at = db.Column(db.DateTime, server_default=db.func.now())
+    is_wishlist_public = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return f"<YourResourceModel {self.name} id=[{self.id}]>"
+        return f"<Wishlist {self.name} id=[{self.id}]>"
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a wishlist and add it to the database
         """
         logger.info("Creating %s", self.name)
         self.id = None  # pylint: disable=invalid-name
@@ -48,7 +51,7 @@ class YourResourceModel(db.Model):
 
     def update(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a wishlist to the database
         """
         logger.info("Saving %s", self.name)
         try:
@@ -59,7 +62,7 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
+        """ Removes a wishlist from the data store """
         logger.info("Deleting %s", self.name)
         try:
             db.session.delete(self)
@@ -70,12 +73,20 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
-        return {"id": self.id, "name": self.name}
+        """ Serializes a wishlist into a dictionary """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "user_id": self.user_id,
+            "created_at": self.created_at,
+            "last_updated_at": self.last_updated_at,
+            "is_wishlist_public": self.is_wishlist_public
+        }
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a wishlist from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -86,11 +97,11 @@ class YourResourceModel(db.Model):
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid wishlist: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data " + str(error)
+                "Invalid wishlist: body of request contained bad or no data " + str(error)
             ) from error
         return self
 
@@ -106,7 +117,7 @@ class YourResourceModel(db.Model):
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a YourResourceModel by it's ID """
+        """ Finds a wishlist by it's ID """
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
