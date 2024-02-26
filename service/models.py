@@ -1,8 +1,9 @@
 """
-Models for YourResourceModel
+Models for Wishlist
 
 All of the models are stored in this module
 """
+
 import logging
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,28 +14,31 @@ db = SQLAlchemy()
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
 
 
-class YourResourceModel(db.Model):
+class Wishlist(db.Model):
     """
-    Class that represents a YourResourceModel
+    Class that represents a Wishlist
     """
 
     ##################################################
     # Table Schema
     ##################################################
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
-
-    # Todo: Place the rest of your schema here...
+    user_id = db.Column(db.Integer)
+    name = db.Column(db.String(255))
+    description = db.Column(db.String(255))
+    is_public = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
-        return f"<YourResourceModel {self.name} id=[{self.id}]>"
+        return f"<Wishlist {self.name} id=[{self.id}]>"
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a Wishlist to the database
         """
         logger.info("Creating %s", self.name)
         self.id = None  # pylint: disable=invalid-name
@@ -48,7 +52,7 @@ class YourResourceModel(db.Model):
 
     def update(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a Wishlist to the database
         """
         logger.info("Saving %s", self.name)
         try:
@@ -59,7 +63,7 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
+        """Removes a Wishlist from the data store"""
         logger.info("Deleting %s", self.name)
         try:
             db.session.delete(self)
@@ -70,12 +74,20 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
-        return {"id": self.id, "name": self.name}
+        """Serializes a Wishlist into a dictionary"""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "name": self.name,
+            "description": self.description,
+            "is_public": self.is_public,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Wishlist from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -86,11 +98,12 @@ class YourResourceModel(db.Model):
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Wishlist: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data " + str(error)
+                "Invalid Wishlist: body of request contained bad or no data "
+                + str(error)
             ) from error
         return self
 
@@ -100,22 +113,22 @@ class YourResourceModel(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the YourResourceModels in the database """
-        logger.info("Processing all YourResourceModels")
+        """Returns all of the Wishlists in the database"""
+        logger.info("Processing all Wishlists")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a YourResourceModel by it's ID """
+        """Finds a Wishlist by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+        """Returns all Wishlists with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the Wishlists you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
