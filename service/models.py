@@ -30,7 +30,7 @@ class Wishlist(db.Model):
     user_id = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     last_updated_at = db.Column(db.DateTime, server_default=db.func.now())
-    is_wishlist_public = db.Column(db.Boolean, default=False)
+    is_public = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f"<Wishlist {self.name} id=[{self.id}]>"
@@ -81,7 +81,7 @@ class Wishlist(db.Model):
             "user_id": self.user_id,
             "created_at": self.created_at,
             "last_updated_at": self.last_updated_at,
-            "is_wishlist_public": self.is_wishlist_public
+            "is_public": self.is_public
         }
 
     def deserialize(self, data):
@@ -111,7 +111,7 @@ class Wishlist(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the YourResourceModels in the database """
+        """ Returns all of the wishlists in the database """
         logger.info("Processing all YourResourceModels")
         return cls.query.all()
 
@@ -123,10 +123,10 @@ class Wishlist(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+        """Returns all wishlist with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the wishlist you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
