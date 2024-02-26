@@ -1,12 +1,13 @@
 """
-TestYourResourceModel API Service Test Suite
+TestWishlist API Service Test Suite
 """
+
 import os
 import logging
 from unittest import TestCase
 from wsgi import app
 from service.common import status
-from service.models import db, YourResourceModel
+from service.models import db, Wishlist
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -17,8 +18,9 @@ DATABASE_URI = os.getenv(
 #  T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
+# cspell:ignore psycopg, testdb
 class TestYourResourceService(TestCase):
-    """ REST API Server Tests """
+    """REST API Server Tests"""
 
     @classmethod
     def setUpClass(cls):
@@ -38,20 +40,30 @@ class TestYourResourceService(TestCase):
     def setUp(self):
         """Runs before each test"""
         self.client = app.test_client()
-        db.session.query(YourResourceModel).delete()  # clean up the last tests
+        db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         db.session.remove()
 
-    ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
-    ######################################################################
-
     def test_index(self):
-        """ It should call the home page """
+        """It should call the home page"""
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # Todo: Add your test cases here...
+    def test_read_wishlist(self):
+        """It should return a wishlist by id"""
+        wishlist = Wishlist(
+            name="test wishlist",
+            user_id=1,
+            description="test description",
+            created_at="2021-01-01",
+            updated_at="2021-01-01",
+        )
+        wishlist.create()
+        resp = self.client.get(f"/wishlists/{wishlist.id}")
+        wishlist_data = resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(wishlist.name, "test wishlist")
+        self.assertEqual(wishlist_data["name"], "test wishlist")
