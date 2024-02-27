@@ -1,7 +1,5 @@
 """
-Models for wishlist and wishlist ite,s
-
-All of the models are stored in this module
+Models for wishlist and wishlist items
 """
 import logging
 from flask_sqlalchemy import SQLAlchemy
@@ -11,6 +9,10 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+# Initializing sql alchemy application
+def init_db(app):
+    Wishlist.init_db(app)
+
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
@@ -19,15 +21,26 @@ class DataValidationError(Exception):
 class Wishlist(db.Model):
     """
     Class that represents a wishlist
+
+    Schema Description:
+    id = primary key for Wishlist table
+    name = user-assigned wishlist name
+    description = a short note user can add for the wishlist
+    username = username of the customer who owns the wishlist
+    created_at = timestamp field to store when wishlist was created
+    last_updated_at = timestamp field to store when wishlist was last updated
+    is_public = boolean flag to check visibility of the wishlist
     """
+
+    app = None
 
     ##################################################
     # Wishlist Table Schema
     ##################################################
     id = db.Column(db.Integer, primary_key=True)                
     name = db.Column(db.String(255), nullable=False)            
-    description = db.Column(db.String(255), nullable=True)      
-    user_id = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255))      
+    username = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     last_updated_at = db.Column(db.DateTime, server_default=db.func.now())
     is_public = db.Column(db.Boolean, default=False)
@@ -78,7 +91,7 @@ class Wishlist(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "user_id": self.user_id,
+            "username": self.username,
             "created_at": self.created_at,
             "last_updated_at": self.last_updated_at,
             "is_public": self.is_public
@@ -110,9 +123,20 @@ class Wishlist(db.Model):
     ##################################################
 
     @classmethod
+    def init_db(cls, app):
+        """Initializing the database session"""
+        logger.info("Initializing the database")
+        cls.app = app
+        """Initializing SQL Alchemy"""
+        db.init_app(app)
+        app.app_context().push()
+        """Create tables on SQL Alchemy"""
+        db.create_all()
+
+    @classmethod
     def all(cls):
         """ Returns all of the wishlists in the database """
-        logger.info("Processing all YourResourceModels")
+        logger.info("Processing all wishlists")
         return cls.query.all()
 
     @classmethod
@@ -123,10 +147,12 @@ class Wishlist(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all wishlist with the given name
-
-        Args:
-            name (string): the name of the wishlist you want to match
-        """
+        """Return all wishlists with the given name"""
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
+    
+    @classmethod
+    def find_for_user(cls, username):
+        """Return all wishlists for a specific user"""
+        logger.info("Processing lookup for user %s ...", username)
+        return cls.query.filter(cls.username == username)
