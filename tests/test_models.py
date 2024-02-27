@@ -54,11 +54,10 @@ class TestWishlist(TestCase):
         self.assertEqual(wishlist_obj.id, None)
         self.assertEqual(wishlist_obj.name, "Sports")
         self.assertEqual(wishlist_obj.is_public, True)
-    
+
     def test_add_a_wishlist(self):
         """It should create a wishlist and add it to the database"""
         wishlists = Wishlist.all()
-        log= logging.getLogger( "SomeTest.testSomething" )
         self.assertEqual(wishlists, [])
         wishlist_obj = Wishlist(name="Sports", username="user123", is_public=True)
         self.assertTrue(wishlist_obj is not None)
@@ -83,7 +82,6 @@ class TestWishlist(TestCase):
         found_wishlist = Wishlist.find(wishlist_fake.id)
         self.assertEqual(found_wishlist.id, wishlist_fake.id)
         self.assertEqual(found_wishlist.name, wishlist_fake.name)
-
 
     def test_list_all_wishlists(self):
         """It should list all wishlists in the database"""
@@ -131,4 +129,3 @@ class TestWishlist(TestCase):
         # delete the wishlist and make sure it isn't in the database
         fake_wishlist.delete()
         self.assertEqual(len(Wishlist.all()), 0)
-
