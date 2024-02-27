@@ -1,5 +1,5 @@
 """
-TestYourResourceModel API Service Test Suite
+Wishlist API Service Test Suite
 """
 import os
 import logging
@@ -17,7 +17,7 @@ DATABASE_URI = os.getenv(
 #  T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
-class TestYourResourceService(TestCase):
+class WishlistService(TestCase):
     """ REST API Server Tests """
 
     @classmethod

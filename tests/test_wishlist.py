@@ -1,5 +1,5 @@
 """
-Test cases for Pet Model
+Test cases for Wishlist Model
 """
 import os
 import logging

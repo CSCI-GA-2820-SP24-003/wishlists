@@ -5,4 +5,4 @@ All of the models are stored in this package
 """
 
 from .persistent_base import db, DataValidationError
-from .Wishlist import Wishlist
+from .wishlist import Wishlist
