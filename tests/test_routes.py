@@ -8,12 +8,15 @@ from unittest import TestCase
 from wsgi import app
 from service.common import status
 from service.models import db, Wishlist
+from .factories import WishlistFactory
 
 # cspell: ignore psycopg testdb
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
+
+BASE_URL = "/wishlists"
 
 
 ######################################################################
@@ -60,24 +63,44 @@ class WishlistService(TestCase):
     def test_create_wishlist(self):
         """It should create a new wishlist"""
 
-        # create a new wishlist
+        wishlist = WishlistFactory()
         resp = self.client.post(
-            "/wishlists",
-            json={
-                "name": "test wishlist",
-                "description": "test description",
-                "username": "testuser",
-                "is_public": False,
-                "created_at": "2024-02-27 00:00:00",
-                "last_updated_at": "2024-02-27 00:00:00",
-            },
+            BASE_URL, json=wishlist.serialize(), content_type="application/json"
         )
-        wishlist = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        self.assertIn("id", wishlist)
-        self.assertEqual(wishlist["name"], "test wishlist")
-        self.assertEqual(wishlist["description"], "test description")
-        self.assertEqual(wishlist["username"], "testuser")
+
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        # Check the data is correct
+        new_wishlist = resp.get_json()
+        self.assertEqual(new_wishlist["name"], wishlist.name, "Names does not match")
+        self.assertEqual(
+            new_wishlist["description"],
+            wishlist.description,
+            "Description does not match",
+        )
+        self.assertEqual(
+            new_wishlist["username"], wishlist.username, "Username does not match"
+        )
+        self.assertEqual(
+            new_wishlist["is_public"], wishlist.is_public, "IsPublic does not match"
+        )
+
+        self.assertEqual(
+            new_wishlist["created_at"],
+            wishlist.created_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+            "Created at date does not match",
+        )
+
+        self.assertEqual(
+            new_wishlist["last_updated_at"],
+            wishlist.last_updated_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+            "Last updated date does not match",
+        )
+
+        # TODO: Add more tests when Read Wishlist is implemented
 
     def test_check_content_type(self):
         """It should check the content type"""
