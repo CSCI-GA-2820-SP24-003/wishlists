@@ -50,8 +50,8 @@ class Wishlist(db.Model, PersistentBase):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255))
     username = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow())
-    last_updated_at = db.Column(db.DateTime, default=datetime.utcnow())
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    last_updated_at = db.Column(db.DateTime, default=db.func.now())
     is_public = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
@@ -86,10 +86,10 @@ class Wishlist(db.Model, PersistentBase):
         try:
             self.name = data["name"]
             self.username = data["username"]
-            self.description = data["description"]
-            self.is_public = data["is_public"]
-            self.created_at = datetime.fromisoformat(data["created_at"])
-            self.last_updated_at = datetime.fromisoformat(data["last_updated_at"])
+            self.description = data.get("description", None)
+            self.is_public = data.get("is_public", False)
+            self.created_at = data.get("created_at", str(db.func.now()))
+            self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist Item: missing " + error.args[0]
