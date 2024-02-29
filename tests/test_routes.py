@@ -52,6 +52,26 @@ class WishlistService(TestCase):
         db.session.remove()
 
     ######################################################################
+    #  H E L P E R   M E T H O D S
+    ######################################################################
+
+    def _create_wishlists(self, count):
+        """Factory method to create wishlists in bulk"""
+        accounts = []
+        for _ in range(count):
+            wishlist = WishlistFactory()
+            resp = self.client.post(BASE_URL, json=wishlist.serialize())
+            self.assertEqual(
+                resp.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test Wishlist",
+            )
+            new_wishlist = resp.get_json()
+            wishlist.id = new_wishlist["id"]
+            accounts.append(wishlist)
+        return accounts
+
+    ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
 
@@ -137,6 +157,18 @@ class WishlistService(TestCase):
         resp = self.client.put(
             f"{BASE_URL}/{new_wishlist_id}", json=non_existing_wishlist
         )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+    def test_delete_wishlist(self):
+        """It should Delete an existing wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
+    def test_delete_non_existent_wishlist(self):
+        """It should not be able to delete a non-existent wishlist and throw appropriate status code"""
+        # get the id of an account
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{-10}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_check_content_type(self):
