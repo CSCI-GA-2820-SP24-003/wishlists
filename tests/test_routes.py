@@ -167,7 +167,8 @@ class WishlistService(TestCase):
 
     def test_delete_non_existent_wishlist(self):
         """It should be able to appropriate status code if record cannot not found"""
-        resp = self.client.delete(f"{BASE_URL}/{-10}")
+        dummy_id=0
+        resp = self.client.delete(f"{BASE_URL}/{dummy_id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_check_content_type(self):
