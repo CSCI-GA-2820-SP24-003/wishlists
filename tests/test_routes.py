@@ -158,18 +158,17 @@ class WishlistService(TestCase):
             f"{BASE_URL}/{new_wishlist_id}", json=non_existing_wishlist
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_wishlist(self):
         """It should Delete an existing wishlist"""
         wishlist = self._create_wishlists(1)[0]
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-    
+
     def test_delete_non_existent_wishlist(self):
-        """It should not be able to delete a non-existent wishlist and throw appropriate status code"""
-        # get the id of an account
-        wishlist = self._create_wishlists(1)[0]
+        """It should be able to appropriate status code if record cannot not found"""
         resp = self.client.delete(f"{BASE_URL}/{-10}")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_check_content_type(self):
         """It should check the content type"""

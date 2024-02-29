@@ -100,14 +100,10 @@ def delete_wishlist(id):
     """
     app.logger.info("Request to delete account with id: %s", id)
 
-    # Abort if wishlist_to_delete is not present in DB; otherwise delete
+    # Retrieve the wishlist from DB and delete it
     wishlist_to_delete = Wishlist.find(id)      
-    if not wishlist_to_delete:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{id}' does not exist. Record can't be deleted.",
-        )
-    wishlist_to_delete.delete()
+    if wishlist_to_delete:
+        wishlist_to_delete.delete()
 
     return "", status.HTTP_204_NO_CONTENT
 
