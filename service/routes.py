@@ -42,7 +42,7 @@ def index():
 
 
 ######################################################################
-#  R E S T   A P I   E N D P O I N T S
+#  R E S T   A P I   E N D P O I N T S   F O R   W I S H L I S T  
 ######################################################################
 
 
@@ -88,6 +88,24 @@ def update_wishlist(wishlist_id):
     wishlist.update()
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+######################################################################
+# DELETE A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:id>", methods=["DELETE"])
+def delete_wishlist(id):
+    """
+    Delete a wishlist
+    This endpoint will delete a Wishlist based on the id specified in the path
+    """
+    app.logger.info("Request to delete account with id: %s", id)
+
+    # Retrieve the wishlist from DB and delete it
+    wishlist_to_delete = Wishlist.find(id)      
+    if wishlist_to_delete:
+        wishlist_to_delete.delete()
+
+    return "", status.HTTP_204_NO_CONTENT
 
 
 def check_content_type(content_type):
