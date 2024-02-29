@@ -46,6 +46,23 @@ def index():
 ######################################################################
 
 
+######################################################################
+# LIST ALL Wishlists
+######################################################################
+@app.route("/wishlists", methods=["GET"])
+def list_wishlists():
+    """Returns all of the Wishlists"""
+    app.logger.info("Request for Wishlists list")
+    accounts = []
+
+    accounts = Wishlist.all()
+
+    # Return as an array of dictionaries
+    results = [account.serialize() for account in accounts]
+
+    return jsonify(results), status.HTTP_200_OK
+
+
 @app.route("/wishlists", methods=["POST"])
 def create_wishlist():
     """
