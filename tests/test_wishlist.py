@@ -1,9 +1,11 @@
 """
 Test cases for Wishlist Model
 """
+
 import os
 import logging
 from unittest import TestCase
+from unittest.mock import patch
 from wsgi import app
 from service.models import Wishlist, DataValidationError, db
 from tests.factories import WishlistFactory
@@ -18,7 +20,7 @@ DATABASE_URI = os.getenv(
 ######################################################################
 # pylint: disable=too-many-public-methods
 class TestWishlist(TestCase):
-    """ Test Cases for Wishlist Model """
+    """Test Cases for Wishlist Model"""
 
     @classmethod
     def setUpClass(cls):
@@ -31,7 +33,7 @@ class TestWishlist(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
@@ -86,7 +88,7 @@ class TestWishlist(TestCase):
     def test_list_all_wishlists(self):
         """It should list all wishlists in the database"""
         all_wishlists = Wishlist.all()
-        self.assertEqual(all_wishlists, [])     # empty DB check
+        self.assertEqual(all_wishlists, [])  # empty DB check
 
         # Create 10 dummy records
         for _ in range(10):
@@ -99,7 +101,9 @@ class TestWishlist(TestCase):
 
     def test_update_a_wishlist(self):
         """It should update a wishlist"""
-        wishlist_obj = Wishlist(name="Sports wishlist", username="user123", is_public=False)
+        wishlist_obj = Wishlist(
+            name="Sports wishlist", username="user123", is_public=False
+        )
         logging.debug(wishlist_obj)
         wishlist_obj.id = None
         wishlist_obj.create()
@@ -121,7 +125,14 @@ class TestWishlist(TestCase):
         self.assertEqual(wishlists[0].id, original_id)
         self.assertEqual(wishlists[0].is_public, True)
 
-    def test_deleete_a_wishlist(self):
+    @patch("service.models.db.session.commit")
+    def test_update_wishlist_failed(self, exception_mock):
+        """It should not update a Wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.update)
+
+    def test_delete_a_wishlist(self):
         """It should delete a wishlist"""
         fake_wishlist = WishlistFactory()
         fake_wishlist.create()
