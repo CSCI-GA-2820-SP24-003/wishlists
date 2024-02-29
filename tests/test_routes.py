@@ -102,6 +102,43 @@ class WishlistService(TestCase):
 
         # TODO: Add more tests when Read Wishlist is implemented
 
+    def test_update_wishlist(self):
+        """It should Update an existing Wishlist"""
+        # create a Wishlist to update
+        test_wishlist = WishlistFactory()
+        resp = self.client.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the Wishlist
+        new_wishlist = resp.get_json()
+        new_wishlist["name"] = "Birthday wishlist"
+        new_wishlist_id = new_wishlist["id"]
+        resp = self.client.put(f"{BASE_URL}/{new_wishlist_id}", json=new_wishlist)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_wishlist = resp.get_json()
+        self.assertEqual(updated_wishlist["name"], "Birthday wishlist")
+
+    def test_update_nonexisting_wishlist(self):
+        """It should Not be able to Update a non-existing Wishlist"""
+        # create a non-existing Wishlist to update
+
+        test_wishlist = WishlistFactory()
+        resp = self.client.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the non-existing Wishlist
+        non_existing_wishlist = resp.get_json()
+        non_existing_wishlist["name"] = "Birthday wishlist"
+        new_wishlist_id = non_existing_wishlist["id"] + 1
+        resp = self.client.put(
+            f"{BASE_URL}/{new_wishlist_id}", json=non_existing_wishlist
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_check_content_type(self):
         """It should check the content type"""
         wishlist_dict = {
