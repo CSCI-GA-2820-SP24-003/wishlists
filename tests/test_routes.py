@@ -57,7 +57,7 @@ class WishlistService(TestCase):
 
     def _create_wishlists(self, count):
         """Factory method to create wishlists in bulk"""
-        accounts = []
+        wishlists = []
         for _ in range(count):
             wishlist = WishlistFactory()
             resp = self.client.post(BASE_URL, json=wishlist.serialize())
@@ -68,8 +68,8 @@ class WishlistService(TestCase):
             )
             new_wishlist = resp.get_json()
             wishlist.id = new_wishlist["id"]
-            accounts.append(wishlist)
-        return accounts
+            wishlists.append(wishlist)
+        return wishlists
 
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
@@ -167,7 +167,7 @@ class WishlistService(TestCase):
 
     def test_delete_non_existent_wishlist(self):
         """It should be able to appropriate status code if record cannot not found"""
-        dummy_id=0
+        dummy_id = 0
         resp = self.client.delete(f"{BASE_URL}/{dummy_id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -199,19 +199,3 @@ class WishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
-
-    def _create_wishlists(self, count):
-        """Factory method to wishlists in bulk"""
-        wishlists = []
-        for _ in range(count):
-            wishlist = WishlistFactory()
-            resp = self.client.post(BASE_URL, json=wishlist.serialize())
-            self.assertEqual(
-                resp.status_code,
-                status.HTTP_201_CREATED,
-                "Could not create test Account",
-            )
-            new_wishlist = resp.get_json()
-            wishlist.id = new_wishlist["id"]
-            wishlists.append(wishlist)
-        return new_wishlist
