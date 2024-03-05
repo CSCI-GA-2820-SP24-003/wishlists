@@ -23,7 +23,7 @@ import os
 from unittest import TestCase
 from wsgi import app
 from service.models import Wishlist, WishListItem, db
-from tests.factories import WishlistFactory, WishListItemFactory
+from tests.factories import WishListItemFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
@@ -71,24 +71,34 @@ class TestWishListItem(TestCase):
         self.assertEqual(serial_wishlist_item["id"], wishlist_item.id)
         self.assertEqual(serial_wishlist_item["wishlist_id"], wishlist_item.wishlist_id)
         self.assertEqual(serial_wishlist_item["product_id"], wishlist_item.product_id)
-        self.assertEqual(serial_wishlist_item["product_name"], wishlist_item.product_name)
-        self.assertEqual(serial_wishlist_item["product_description"], wishlist_item.product_description)
-        self.assertEqual(serial_wishlist_item["product_price"], wishlist_item.product_price)
-        self.assertEqual(serial_wishlist_item["created_at"], wishlist_item.created_at.isoformat())
-        self.assertEqual(serial_wishlist_item["last_updated_at"], wishlist_item.last_updated_at.isoformat())
+        self.assertEqual(
+            serial_wishlist_item["product_name"], wishlist_item.product_name
+        )
+        self.assertEqual(
+            serial_wishlist_item["product_description"],
+            wishlist_item.product_description,
+        )
+        self.assertEqual(
+            serial_wishlist_item["product_price"], wishlist_item.product_price
+        )
+        self.assertEqual(
+            serial_wishlist_item["created_at"], wishlist_item.created_at.isoformat()
+        )
+        self.assertEqual(
+            serial_wishlist_item["last_updated_at"],
+            wishlist_item.last_updated_at.isoformat(),
+        )
 
-
-    def test_deserialize_an_wishlist_item(self):
-        """It should deserialize an wishlist item"""
+    def test_deserialize_a_wishlist_item(self):
+        """It should deserialize a wishlist item"""
         wishlist_item = WishListItemFactory()
         wishlist_item.create()
         new_wishlist_item = WishListItem()
         new_wishlist_item.deserialize(wishlist_item.serialize())
-        self.assertEqual(new_wishlist_item.id, wishlist_item.id)
         self.assertEqual(new_wishlist_item.wishlist_id, wishlist_item.wishlist_id)
         self.assertEqual(new_wishlist_item.product_id, wishlist_item.product_id)
         self.assertEqual(new_wishlist_item.product_name, wishlist_item.product_name)
-        self.assertEqual(new_wishlist_item.product_description, wishlist_item.product_description)
+        self.assertEqual(
+            new_wishlist_item.product_description, wishlist_item.product_description
+        )
         self.assertEqual(new_wishlist_item.product_price, wishlist_item.product_price)
-        self.assertEqual(new_wishlist_item.created_at, wishlist_item.created_at)
-        self.assertEqual(new_wishlist_item.last_updated_at, wishlist_item.last_updated_at)

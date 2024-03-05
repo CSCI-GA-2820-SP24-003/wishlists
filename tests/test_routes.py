@@ -8,7 +8,7 @@ from unittest import TestCase
 from wsgi import app
 from service.common import status
 from service.models import db, Wishlist
-from .factories import WishlistFactory
+from .factories import WishlistFactory, WishListItemFactory
 
 # cspell: ignore psycopg testdb
 
@@ -199,3 +199,22 @@ class WishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
+    def test_add_item(self):
+        """It should Add an item to a wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        item = WishListItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        self.assertEqual(data["wishlist_id"], wishlist.id)
+        self.assertEqual(data["product_id"], item.product_id)
+        self.assertEqual(data["product_name"], item.product_name)
+        self.assertEqual(data["product_description"], item.product_description)
+        self.assertEqual(float(data["product_price"]), float(item.product_price))

@@ -14,7 +14,7 @@
 # limitations under the License.
 ######################################################################
 
-# cspell: ignore jsonify
+# cspell: ignore jsonify, Rofrano
 
 """
 Wishlists Service
@@ -23,9 +23,9 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Pets from the inventory of pets in the PetShop
 """
 
-from flask import jsonify, request, url_for, abort
+from flask import jsonify, request, abort  # url_for
 from flask import current_app as app  # Import Flask application
-from service.models import Wishlist
+from service.models import Wishlist, WishListItem
 from service.common import status  # HTTP Status Codes
 
 
@@ -42,7 +42,7 @@ def index():
 
 
 ######################################################################
-#  R E S T   A P I   E N D P O I N T S   F O R   W I S H L I S T  
+#  R E S T   A P I   E N D P O I N T S   F O R   W I S H L I S T
 ######################################################################
 
 
@@ -106,6 +106,7 @@ def update_wishlist(wishlist_id):
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
@@ -118,7 +119,7 @@ def delete_wishlist(id):
     app.logger.info("Request to delete account with id: %s", id)
 
     # Retrieve the wishlist from DB and delete it
-    wishlist_to_delete = Wishlist.find(id)      
+    wishlist_to_delete = Wishlist.find(id)
     if wishlist_to_delete:
         wishlist_to_delete.delete()
 
@@ -141,3 +142,43 @@ def check_content_type(content_type):
     abort(
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, f"Content-Type must be {content_type}"
     )
+
+
+######################################################################
+# ADD AN ITEM TO A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+def create_wishlist_item(wishlist_id):
+    """
+    Create an Item on a Wishlist
+
+    This endpoint will add an item to a Wishlist
+    """
+    app.logger.info(
+        "Request to create a WishlistItem for Wishlist with id: %s", wishlist_id
+    )
+    check_content_type("application/json")
+
+    # See if the account exists and abort if it doesn't
+    # account = Account.find(account_id)
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+
+    # Create an address from the json data
+    item = WishListItem()
+    item_data = request.get_json()
+    item_data["wishlist_id"] = wishlist_id
+    item.deserialize(item_data)
+    item.wishlist_id = wishlist_id
+    # Append the address to the account
+    wishlist.wishlist_items.append(item)
+    wishlist.update()
+
+    # Prepare a message to return
+    message = item.serialize()
+
+    return jsonify(message), status.HTTP_201_CREATED
