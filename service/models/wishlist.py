@@ -21,6 +21,7 @@ Persistent Base class for Wishlist database CRUD functions
 import logging
 from .persistent_base import db, PersistentBase, DataValidationError
 from datetime import datetime
+from .wishlist_item import WishListItem
 
 logger = logging.getLogger("flask.app")
 
@@ -53,6 +54,7 @@ class Wishlist(db.Model, PersistentBase):
     created_at = db.Column(db.DateTime, default=db.func.now())
     last_updated_at = db.Column(db.DateTime, default=db.func.now())
     is_public = db.Column(db.Boolean, default=False)
+    wishlist_items = db.relationship("WishListItem", backref="wishlist", passive_deletes=True)
 
     def __repr__(self):
         return (
@@ -69,15 +71,19 @@ class Wishlist(db.Model, PersistentBase):
 
     def serialize(self):
         """ Serializes a wishlist into a dictionary """
-        return {
+        wishlist = {
             "id": self.id,
             "name": self.name,
             "description": self.description,
             "username": self.username,
             "created_at": self.created_at.isoformat(),
             "last_updated_at": self.last_updated_at.isoformat(),
-            "is_public": self.is_public
+            "is_public": self.is_public,
+            "wishlist_items": []
         }
+        for wishlist_item in self.wishlist_items:
+            wishlist["wishlist_items"].append(wishlist_item.serialize())
+        return wishlist
 
     def deserialize(self, data):
         """
@@ -90,6 +96,12 @@ class Wishlist(db.Model, PersistentBase):
             self.is_public = data.get("is_public", False)
             self.created_at = data.get("created_at", str(db.func.now()))
             self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
+            # handle inner list of addresses
+            wishlist_items_items = data.get("wishlist_items")
+            for json_wishlists_items in wishlist_items_items:
+                wishlist_item = WishListItem()
+                wishlist_item.deserialize(json_wishlists_items)
+                self.json_wishlists_items.append(wishlist_item)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist Item: missing " + error.args[0]

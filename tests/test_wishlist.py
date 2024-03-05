@@ -7,8 +7,8 @@ import logging
 from unittest import TestCase
 from unittest.mock import patch
 from wsgi import app
-from service.models import Wishlist, DataValidationError, db
-from tests.factories import WishlistFactory
+from service.models import Wishlist, WishListItem, DataValidationError, db
+from tests.factories import WishlistFactory, WishListItemFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -39,6 +39,7 @@ class TestWishlist(TestCase):
     def setUp(self):
         """This runs before each test"""
         db.session.query(Wishlist).delete()  # clean up the last tests
+        db.session.query(WishListItem).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -84,6 +85,7 @@ class TestWishlist(TestCase):
         found_wishlist = Wishlist.find(wishlist_fake.id)
         self.assertEqual(found_wishlist.id, wishlist_fake.id)
         self.assertEqual(found_wishlist.name, wishlist_fake.name)
+        self.assertEqual(found_wishlist.wishlist_items, [])
 
     def test_list_all_wishlists(self):
         """It should list all wishlists in the database"""
