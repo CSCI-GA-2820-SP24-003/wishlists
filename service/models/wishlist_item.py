@@ -102,7 +102,7 @@ class WishListItem(db.Model, PersistentBase):
             self.product_price = data["product_price"]
             # Optional fields with defaults
             self.created_at = data.get("created_at", str(db.func.now()))
-            self.created_at = data.get("last_updated_at", str(db.func.now()))
+            self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
         except KeyError as error:
             raise DataValidationError(
                 "Invalid data: missing " + error.args[0]

@@ -103,6 +103,84 @@ class TestWishListItem(TestCase):
         )
         self.assertEqual(new_wishlist_item.product_price, wishlist_item.product_price)
 
+    def test_add_wishlist_item(self):
+        """It should Create a wishlist with an item and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(new_wishlist.wishlist_items[0].product_name, item.product_name)
+
+        item2 = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item2)
+        wishlist.update()
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(len(new_wishlist.wishlist_items), 2)
+        self.assertEqual(
+            new_wishlist.wishlist_items[1].product_name, item2.product_name
+        )
+
+    def test_add_wishlist_item(self):
+        """It should Create a wishlist with an item and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(new_wishlist.wishlist_items[0].product_name, item.product_name)
+
+        item2 = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item2)
+        wishlist.update()
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(len(new_wishlist.wishlist_items), 2)
+        self.assertEqual(
+            new_wishlist.wishlist_items[1].product_name, item2.product_name
+        )
+
+    def test_add_wishlist_item(self):
+        """It should Create a wishlist with an item and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(new_wishlist.wishlist_items[0].product_name, item.product_name)
+
+        item2 = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item2)
+        wishlist.update()
+
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(len(new_wishlist.wishlist_items), 2)
+        self.assertEqual(
+            new_wishlist.wishlist_items[1].product_name, item2.product_name
+        )
+
     def test_update_wishlist_item(self):
         """It should Update a wishlist item"""
         wishlists = Wishlist.all()
