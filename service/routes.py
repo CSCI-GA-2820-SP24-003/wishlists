@@ -225,3 +225,41 @@ def get_addresses(wishlist_id, id):
         )
 
     return jsonify(item.serialize()), status.HTTP_200_OK
+
+######################################################################
+# UPDATE WISHLIST ITEMS
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_items(wishlist_id, item_id):
+    
+    """
+    Update a Wishlist Item
+    This endpoint will update a wishlist item based the body that is posted
+    """
+    app.logger.info(
+        "Request to update a wishlist item %s for Wishlist id: %s",
+        (item_id, wishlist_id),
+    )
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    # see if the wishlist exists and abort if it doesn't
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+    # See if the item exists and abort if it doesn't
+    item = WishListItem.find(item_id)
+    if not item:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' could not be found in the Wishlist with id '{wishlist_id}'.",
+        )
+    # Update from the json in the body of the request
+    data = request.get_json()
+    original_data = item.serialize()
+    data["created_at"] = original_data["created_at"]
+    item.deserialize(data)
+    item.id = item_id
+    item.update()
+    return jsonify(item.serialize()), status.HTTP_200_OK

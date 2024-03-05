@@ -23,7 +23,7 @@ import os
 from unittest import TestCase
 from wsgi import app
 from service.models import Wishlist, WishListItem, db
-from tests.factories import WishListItemFactory
+from tests.factories import WishListItemFactory, WishlistFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
@@ -102,3 +102,27 @@ class TestWishListItem(TestCase):
             new_wishlist_item.product_description, wishlist_item.product_description
         )
         self.assertEqual(new_wishlist_item.product_price, wishlist_item.product_price)
+
+    def test_update_wishlist_item(self):
+        """It should Update a wishlist item"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        old_item = wishlist.wishlist_items[0]
+        print("%r", old_item)
+        self.assertEqual(old_item.product_description, item.product_description)
+        # Change the product_description
+        old_item.product_description = "NO"
+        wishlist.update()
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        item = wishlist.wishlist_items[0]
+        self.assertEqual(item.product_description, "NO")
