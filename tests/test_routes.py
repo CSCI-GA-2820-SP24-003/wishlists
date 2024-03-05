@@ -139,6 +139,7 @@ class WishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_wishlist = resp.get_json()
         self.assertEqual(updated_wishlist["name"], "Birthday wishlist")
+        self.assertEqual(updated_wishlist["created_at"], new_wishlist["created_at"])
 
     def test_update_nonexisting_wishlist(self):
         """It should Not be able to Update a non-existing Wishlist"""
