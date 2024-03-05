@@ -51,7 +51,7 @@ class TestWishlist(TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
-    
+
     def test_create_a_wishlist(self):
         """It should create a wishlist and assert that it exists"""
         fake_wishlist = WishlistFactory()

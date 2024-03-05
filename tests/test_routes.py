@@ -218,7 +218,6 @@ class WishlistService(TestCase):
         """It should not allow an illegal method call"""
         resp = self.client.put(BASE_URL, json={"not": "today"})
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        
 
     ######################################################################
     #  I T E M   T E S T   C A S E S   H E R E
