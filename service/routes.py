@@ -143,6 +143,10 @@ def check_content_type(content_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, f"Content-Type must be {content_type}"
     )
 
+# ---------------------------------------------------------------------
+#                I T E M   M E T H O D S
+# ---------------------------------------------------------------------
+
 
 ######################################################################
 # ADD AN ITEM TO A WISHLIST
@@ -182,3 +186,42 @@ def create_wishlist_item(wishlist_id):
     message = item.serialize()
 
     return jsonify(message), status.HTTP_201_CREATED
+
+
+######################################################################
+# RETRIEVE AN ITEM FROM WISHLIST
+######################################################################
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["GET"])
+def get_addresses(wishlist_id, id):
+    """
+    This endpoint returns just an item
+    """
+    app.logger.info(
+        "Request to retrieve item %s for Wishlist id: %s", (id, wishlist_id)
+    )
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id='{wishlist_id}' could not be found.",
+        )
+
+    # See if the item exists and abort if it doesn't
+    item = WishListItem.find(id)
+    if not item:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id='{id}' could not be found.",
+        )
+
+    # An extra check to verify that item belongs to wishlist id provided
+    if wishlist_id != item.wishlist_id:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id='{id}' could not be found inside wishlist with id='{wishlist_id}",
+        )
+
+    return jsonify(item.serialize()), status.HTTP_200_OK

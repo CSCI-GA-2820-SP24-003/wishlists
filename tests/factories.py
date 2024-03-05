@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
+from decimal import Decimal
 import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime
-from decimal import Decimal
 from service.models import Wishlist, WishListItem
 
 
