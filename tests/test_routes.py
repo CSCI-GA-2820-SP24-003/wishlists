@@ -224,6 +224,31 @@ class WishlistService(TestCase):
         self.assertEqual(data["product_description"], item.product_description)
         self.assertEqual(float(data["product_price"]), float(item.product_price))
 
+    def test_list_wishlist_items(self):
+        """It should Get a list of Addresses"""
+        # add two addresses to account
+        wishlist = self._create_wishlists(1)[0]
+        items_list = WishListItemFactory.create_batch(2)
+
+        # Create address 1
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items", json=items_list[0].serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create address 2
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items", json=items_list[1].serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
     def test_read_item(self):
         """It should read an item from wishlist"""
         wishlist = self._create_wishlists(1)[0]
