@@ -20,7 +20,6 @@ Persistent Base class for wishlist item database CRUD functions
 
 import logging
 from .persistent_base import db, PersistentBase, DataValidationError
-from datetime import datetime
 
 logger = logging.getLogger("flask.app")
 
@@ -30,7 +29,7 @@ logger = logging.getLogger("flask.app")
 ######################################################################
 class WishListItem(db.Model, PersistentBase):
     """
-    Class that represents a wishlist item 
+    Class that represents a wishlist item
 
     Schema Description:
     id = primary key for Wishlist item table
@@ -74,7 +73,7 @@ class WishListItem(db.Model, PersistentBase):
             f"Created: {self.created_at.isoformat() if self.created_at else 'None'}, "
             f"Updated: {self.last_updated_at.isoformat() if self.last_updated_at else 'None'}"
         )
-    
+
     def serialize(self) -> dict:
         """Serializes the wishlist item into a dictionary."""
         return {
@@ -85,7 +84,9 @@ class WishListItem(db.Model, PersistentBase):
             "product_description": self.product_description,
             "product_price": self.product_price,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "last_updated_at": self.last_updated_at.isoformat() if self.last_updated_at else None,
+            "last_updated_at": (
+                self.last_updated_at.isoformat() if self.last_updated_at else None
+            ),
         }
 
     def deserialize(self, data):
@@ -94,15 +95,14 @@ class WishListItem(db.Model, PersistentBase):
         data -> is a dictionary containing wishlist item data.
         """
         try:
-            self.id = data["id"]
             self.wishlist_id = data["wishlist_id"]
             self.product_id = data["product_id"]
             self.product_name = data["product_name"]
             self.product_description = data["product_description"]
             self.product_price = data["product_price"]
             # Optional fields with defaults
-            self.created_at = datetime.fromisoformat(data.get("created_at", str(db.func.now())))
-            self.last_updated_at = datetime.fromisoformat(data.get("last_updated_at", str(db.func.now())))
+            self.created_at = data.get("created_at", str(db.func.now()))
+            self.created_at = data.get("last_updated_at", str(db.func.now()))
         except KeyError as error:
             raise DataValidationError(
                 "Invalid data: missing " + error.args[0]
@@ -112,4 +112,3 @@ class WishListItem(db.Model, PersistentBase):
                 "Invalid data: body of request contained bad or no data - " + str(error)
             ) from error
         return self
-
