@@ -15,7 +15,7 @@
 ######################################################################
 
 """
-Test cases for Address Model
+Test cases for WishlistItem Model
 """
 
 import logging
