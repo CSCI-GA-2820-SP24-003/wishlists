@@ -8,7 +8,9 @@ from unittest import TestCase
 from unittest.mock import patch
 from wsgi import app
 from service.models import Wishlist, WishListItem, DataValidationError, db
-from tests.factories import WishlistFactory, WishListItemFactory
+from tests.factories import WishlistFactory
+
+# cspell: ignore psycopg testdb, psycopg
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
