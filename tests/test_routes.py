@@ -381,3 +381,29 @@ class WishlistService(TestCase):
         )
         
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_item_with_incorrect_wishlist_id(self):
+        """It should not be able to update an existent item if wishlist_id provided is wrong"""
+        wishlist = self._create_wishlists(1)[0]
+        wishlist2 = self._create_wishlists(1)[0]
+        self.assertNotEqual(wishlist.id, wishlist2.id)
+        item = WishListItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        data = resp.get_json()
+        logging.debug(data)
+        item_id = data["id"]
+        data["product_description"] = ".."
+
+        # update the item
+        resp = self.client.put(
+            f"{BASE_URL}/{wishlist2.id}/items/{item_id}",
+            json=data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

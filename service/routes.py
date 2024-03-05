@@ -260,6 +260,11 @@ def update_items(wishlist_id, item_id):
             status.HTTP_404_NOT_FOUND,
             f"Item with id '{item_id}' could not be found in the Wishlist with id '{wishlist_id}'.",
         )
+    if wishlist_id != item.wishlist_id:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id='{id}' could not be found inside wishlist with id='{wishlist_id}",
+        )
     # Update from the json in the body of the request
     data = request.get_json()
     original_data = item.serialize()
