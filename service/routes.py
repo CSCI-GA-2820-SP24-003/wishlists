@@ -100,7 +100,10 @@ def update_wishlist(wishlist_id):
         )
 
     # Update from the json in the body of the request
-    wishlist.deserialize(request.get_json())
+    original_data = wishlist.serialize()
+    data = request.get_json()
+    data["created_at"] = original_data["created_at"]
+    wishlist.deserialize(data)
     wishlist.id = wishlist_id
     wishlist.update()
 
@@ -142,6 +145,7 @@ def check_content_type(content_type):
     abort(
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, f"Content-Type must be {content_type}"
     )
+
 
 # ---------------------------------------------------------------------
 #                I T E M   M E T H O D S
@@ -191,6 +195,7 @@ def create_wishlist_item(wishlist_id):
 ######################################################################
 # RETRIEVE AN ITEM FROM WISHLIST
 ######################################################################
+
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["GET"])
 def get_addresses(wishlist_id, id):
