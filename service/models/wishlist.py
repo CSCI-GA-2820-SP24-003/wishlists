@@ -103,7 +103,7 @@ class Wishlist(db.Model, PersistentBase):
             for json_wishlists_items in wishlist_items_items:
                 wishlist_item = WishListItem()
                 wishlist_item.deserialize(json_wishlists_items)
-                self.json_wishlists_items.append(wishlist_item)
+                self.wishlist_items.append(wishlist_item)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist Item: missing " + error.args[0]
