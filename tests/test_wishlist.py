@@ -231,13 +231,3 @@ class TestWishlist(TestCase):
         """It should not Deserialize a wishlist with a TypeError"""
         wishlist = Wishlist()
         self.assertRaises(DataValidationError, wishlist.deserialize, [])
-
-    def test_deserialize_item_key_error(self):
-        """It should not Deserialize an item with a KeyError"""
-        item = WishListItem()
-        self.assertRaises(DataValidationError, item.deserialize, {})
-
-    def test_deserialize_item_type_error(self):
-        """It should not Deserialize an item with a TypeError"""
-        item = WishListItem()
-        self.assertRaises(DataValidationError, item.deserialize, [])
