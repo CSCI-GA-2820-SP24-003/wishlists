@@ -261,3 +261,4 @@ class TestWishlist(TestCase):
         self.assertEqual(found_wishlist.last_updated_at, wishlist.last_updated_at)
         self.assertEqual(found_wishlist.is_public, wishlist.is_public)
         self.assertEqual(found_wishlist.wishlist_items, [])
+

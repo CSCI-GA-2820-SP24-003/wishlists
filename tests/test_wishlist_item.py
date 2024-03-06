@@ -22,7 +22,7 @@ import logging
 import os
 from unittest import TestCase
 from wsgi import app
-from service.models import Wishlist, WishListItem, db
+from service.models import Wishlist, WishListItem, db, DataValidationError
 from tests.factories import WishListItemFactory, WishlistFactory
 
 DATABASE_URI = os.getenv(
@@ -128,3 +128,34 @@ class TestWishListItem(TestCase):
         self.assertEqual(
             new_wishlist.wishlist_items[1].product_name, item2.product_name
         )
+
+    def test_delete_a_wishlist_item(self):
+        """It should Delete a wishlist item from the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.wishlist_items.append(item)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+
+        wishlist_items = WishListItem.all()
+        self.assertEqual(len(wishlist_items), 1)
+
+        wishlist_item = WishListItem.find(wishlist.wishlist_items[0].id)
+        wishlist_item.delete()
+        wishlist_items = WishListItem.all()
+        self.assertEqual(len(wishlist_items), 0)
+
+    def test_deserialize_wishlist_item_key_error(self):
+        """It should not Deserialize an item with a KeyError"""
+        item = WishListItem()
+        self.assertRaises(DataValidationError, item.deserialize, {})
+
+    def test_deserialize_wishlist_item_type_error(self):
+        """It should not Deserialize an item with a TypeError"""
+        item = WishListItem()
+        self.assertRaises(DataValidationError, item.deserialize, [])

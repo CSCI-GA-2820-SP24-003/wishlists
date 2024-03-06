@@ -20,7 +20,7 @@
 Wishlists Service
 
 This service implements a REST API that allows you to Create, Read, Update
-and Delete Pets from the inventory of pets in the PetShop
+and Delete wishlist and wishlist items from the account in a e-commerce website.
 """
 
 from flask import jsonify, request, abort  # url_for
@@ -129,6 +129,10 @@ def delete_wishlist(id):
     return "", status.HTTP_204_NO_CONTENT
 
 
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
 def check_content_type(content_type):
     """Checks that the media type is correct"""
     if "Content-Type" not in request.headers:
@@ -196,7 +200,7 @@ def create_wishlist_item(wishlist_id):
 # LIST WISHLIST ITEMS
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
-def list_addresses(wishlist_id):
+def list_wishlist_items(wishlist_id):
     """Returns all of the Items for a a Wishlist"""
     app.logger.info("Request for all Items for Wishlist with id: %s", wishlist_id)
 
@@ -220,7 +224,7 @@ def list_addresses(wishlist_id):
 
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["GET"])
-def get_addresses(wishlist_id, id):
+def get_wishlist_item(wishlist_id, id):
     """
     This endpoint returns just an item
     """
@@ -253,7 +257,6 @@ def get_addresses(wishlist_id, id):
 
     return jsonify(item.serialize()), status.HTTP_200_OK
 
-
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
@@ -272,3 +275,25 @@ def get_wishlists(wishlist_id):
         )
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
+#####################################################################
+# DELETE AN ITEM FROM WISHLIST
+######################################################################
+
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["DELETE"])
+def delete_wishlist_item(wishlist_id, id):
+    """
+    Delete a wishlist item
+
+    This endpoint will delete a wishlist item based the id specified in the path
+    """
+    app.logger.info(
+        "Request to delete wishlist item  %s for wishlist  id: %s", (id, wishlist_id)
+    )
+
+    # See if the wishlist item  exists and delete it if it does
+    wishlist_item = WishListItem.find(id)
+    if wishlist_item:
+        wishlist_item.delete()
+
+    return "", status.HTTP_204_NO_CONTENT
