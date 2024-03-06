@@ -25,6 +25,8 @@ service/                   - service python package
 ├── __init__.py            - package initializer
 ├── config.py              - configuration parameters
 ├── models
+    ├── __init__.py        - model initializer
+    ├── persistent_base.py - Base class
     ├── wishlist.py        - Wishlist model
     ├── wishlist_item.py   - Wishlist Item model
 ├── routes.py              - module with service routes
@@ -39,7 +41,7 @@ tests/                     - test cases package
 ├── factories.py           - test factories
 ├── test_cli_commands.py   - test suite for the CLI
 ├── test_routes.py         - test suite for service routes
-├── test_wishlist_item.py       - test suite for wishlist item model
+├── test_wishlist_item.py  - test suite for wishlist item model
 └── test_wishlist.py       - test suite for wishlist model
 ```
 
@@ -48,14 +50,24 @@ tests/                     - test cases package
 ```text
 Endpoint              Methods  Rule                              
 --------------------  -------  ----------------------------------
+index                 GET      / 
+
 create_wishlist       POST     /wishlists                        
 create_wishlist_item  POST     /wishlists/<int:wishlist_id>/items
-delete_wishlist       DELETE   /wishlists/<int:id>               
-index                 GET      /                                 
-list_addresses        GET      /wishlists/<int:wishlist_id>/items
-list_wishlists        GET      /wishlists                        
-static                GET      /static/<path:filename>           
-update_wishlist       PUT      /wishlists/<int:wishlist_id> 
+
+read_wishlist         GET      /wishlists/<int:id>
+read_wishlist_item    GET      /wishlists/<int:wishlist_id>/items/<int:item_id>
+
+update_wishlist       PUT      /wishlists/<int:wishlist_id>
+update_wishlist_item  PUT      /wishlists/<int:wishlist_id>/items/<int:item_id>
+
+delete_wishlist       DELETE   /wishlists/<int:id>
+delete_wishlist_item  DELETE   /wishlists/<int:wishlist_id>/items/<int:item_id>
+
+list_wishlists        GET      /wishlists
+list_wishlist_items   GET      /wishlists/<int:wishlist_id>/items
+
+static                GET      /static/<path:filename>
 ```
 
 ## Testing
