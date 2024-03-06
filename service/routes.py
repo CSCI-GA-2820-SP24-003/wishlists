@@ -302,7 +302,7 @@ def delete_wishlist_item(wishlist_id, id):
 # UPDATE WISHLIST ITEMS
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
-def update_items(wishlist_id, item_id):
+def update_wishlist_items(wishlist_id, item_id):
     
     """
     Update a Wishlist Item
