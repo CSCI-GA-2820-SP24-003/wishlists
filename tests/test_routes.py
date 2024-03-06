@@ -7,7 +7,7 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.common import status
-from service.models import db, Wishlist
+from service.models import db, Wishlist, WishListItem
 from .factories import WishlistFactory, WishListItemFactory
 
 # cspell: ignore psycopg testdb
@@ -45,6 +45,7 @@ class WishlistService(TestCase):
         """Runs before each test"""
         self.client = app.test_client()
         db.session.query(Wishlist).delete()  # clean up the last tests
+        db.session.query(WishListItem).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -349,6 +350,35 @@ class WishlistService(TestCase):
         # retrieve it back
         resp = self.client.get(
             f"{BASE_URL}/{wishlist2.id}/items/{item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_wishlist_item(self):
+        """It should Delete a wishlist item from the wishlist if it exists"""
+        # get the id of an wishlist
+        wishlist = self._create_wishlists(1)[0]
+        wishlistItem = WishListItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlistItem.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        wishlist_item_id = data["id"]
+
+        # send delete request
+        resp = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/{wishlist_item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # retrieve it back and make sure address is not there
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{wishlist_item_id}",
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
