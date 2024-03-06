@@ -8,7 +8,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from wsgi import app
 from service.models import Wishlist, WishListItem, DataValidationError, db
-from tests.factories import WishlistFactory
+from tests.factories import WishlistFactory, WishListItemFactory
 
 # cspell: ignore psycopg testdb, psycopg
 
@@ -53,81 +53,75 @@ class TestWishlist(TestCase):
     ######################################################################
 
     def test_create_a_wishlist(self):
-        """It should Create a WISHLIST and assert that it exists"""
-        wishlist_obj = Wishlist(name="Sports", username="user123", is_public=True)
-        self.assertTrue(wishlist_obj is not None)
-        self.assertEqual(wishlist_obj.id, None)
-        self.assertEqual(wishlist_obj.name, "Sports")
-        self.assertEqual(wishlist_obj.is_public, True)
+        """It should create a wishlist and assert that it exists"""
+        fake_wishlist = WishlistFactory()
+        wishlist = Wishlist(
+            name=fake_wishlist.name,
+            is_public=fake_wishlist.is_public,
+            username=fake_wishlist.username,
+            description=fake_wishlist.description,
+            created_at=fake_wishlist.created_at,
+            last_updated_at=fake_wishlist.last_updated_at,
+        )
+        self.assertIsNotNone(wishlist)
+        self.assertEqual(wishlist.id, None)
+        self.assertEqual(wishlist.name, fake_wishlist.name)
+        self.assertEqual(wishlist.username, fake_wishlist.username)
+        self.assertEqual(wishlist.description, fake_wishlist.description)
+        self.assertEqual(wishlist.created_at, fake_wishlist.created_at)
+        self.assertEqual(wishlist.last_updated_at, fake_wishlist.last_updated_at)
+        self.assertEqual(wishlist.wishlist_items, fake_wishlist.wishlist_items)
 
     def test_add_a_wishlist(self):
-        """It should create a wishlist and add it to the database"""
+        """It should Create a wishlist and add it to the database"""
         wishlists = Wishlist.all()
         self.assertEqual(wishlists, [])
-        wishlist_obj = Wishlist(name="Sports", username="user123", is_public=True)
-        self.assertTrue(wishlist_obj is not None)
-        self.assertEqual(wishlist_obj.id, None)
-        wishlist_obj.create()
-
+        wishlist = WishlistFactory()
+        wishlist.create()
         # Assert that it was assigned an id and shows up in the database
-        self.assertIsNotNone(wishlist_obj.id)
+        self.assertIsNotNone(wishlist.id)
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 1)
 
-    def test_read_a_wishlist(self):
-        """It should read a wishlist"""
-        wishlist_fake = WishlistFactory()
-        wishlist_fake.id = None
-        wishlist_fake.create()
-        self.assertIsNotNone(wishlist_fake.id)
-        self.assertIsNotNone(wishlist_fake.name)
-        self.assertIsNotNone(wishlist_fake.username)
+    @patch("service.models.db.session.commit")
+    def test_add_wishlist_failed(self, exception_mock):
+        """It should not create a wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.create)
 
-        # Fetch it back - this time from the DB
-        found_wishlist = Wishlist.find(wishlist_fake.id)
-        self.assertEqual(found_wishlist.id, wishlist_fake.id)
-        self.assertEqual(found_wishlist.name, wishlist_fake.name)
+    def test_read_wishlist(self):
+        """It should Read a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Read it back
+        found_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(found_wishlist.id, wishlist.id)
+        self.assertEqual(found_wishlist.name, wishlist.name)
+        self.assertEqual(found_wishlist.username, wishlist.username)
+        self.assertEqual(found_wishlist.description, wishlist.description)
+        self.assertEqual(found_wishlist.created_at, wishlist.created_at)
+        self.assertEqual(found_wishlist.last_updated_at, wishlist.last_updated_at)
+        self.assertEqual(found_wishlist.is_public, wishlist.is_public)
         self.assertEqual(found_wishlist.wishlist_items, [])
 
-    def test_list_all_wishlists(self):
-        """It should list all wishlists in the database"""
-        all_wishlists = Wishlist.all()
-        self.assertEqual(all_wishlists, [])  # empty DB check
+    def test_update_wishlist(self):
+        """It should Update a wishlist"""
+        wishlist = WishlistFactory(name="Sports")
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        self.assertEqual(wishlist.name, "Sports")
 
-        # Create 10 dummy records
-        for _ in range(10):
-            wishlist = WishlistFactory()
-            wishlist.create()
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        wishlist.name = "Clothes"
+        wishlist.update()
 
-        # See if we get back 10 wishlists
-        wishlists_from_db = Wishlist.all()
-        self.assertEqual(len(wishlists_from_db), 10)
-
-    def test_update_a_wishlist(self):
-        """It should update a wishlist"""
-        wishlist_obj = Wishlist(
-            name="Sports wishlist", username="user123", is_public=False
-        )
-        logging.debug(wishlist_obj)
-        wishlist_obj.id = None
-        wishlist_obj.create()
-        logging.debug(wishlist_obj)
-        self.assertIsNotNone(wishlist_obj.id)
-
-        # Change is_public field and save it to DB
-        wishlist_obj.is_public = True
-        original_id = wishlist_obj.id
-        wishlist_obj.update()
-        self.assertEqual(wishlist_obj.id, original_id)
-        self.assertEqual(wishlist_obj.is_public, True)
-
-        # Fetch it back from the DB and read item
-        # the id should not change
-        # but the is_public data should change
-        wishlists = Wishlist.all()
-        self.assertEqual(len(wishlists), 1)
-        self.assertEqual(wishlists[0].id, original_id)
-        self.assertEqual(wishlists[0].is_public, True)
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(wishlist.name, "Clothes")
 
     @patch("service.models.db.session.commit")
     def test_update_wishlist_failed(self, exception_mock):
@@ -137,10 +131,134 @@ class TestWishlist(TestCase):
         self.assertRaises(DataValidationError, wishlist.update)
 
     def test_delete_a_wishlist(self):
-        """It should delete a wishlist"""
-        fake_wishlist = WishlistFactory()
-        fake_wishlist.create()
-        self.assertEqual(len(Wishlist.all()), 1)
-        # delete the wishlist and make sure it isn't in the database
-        fake_wishlist.delete()
-        self.assertEqual(len(Wishlist.all()), 0)
+        """It should Delete a wishlist from the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        wishlist = wishlists[0]
+        wishlist.delete()
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 0)
+
+    @patch("service.models.db.session.commit")
+    def test_delete_wishlist_failed(self, exception_mock):
+        """It should not delete a wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.delete)
+
+    def test_list_all_wishlists(self):
+        """It should List all Wishlists in the database"""
+        wishlist = Wishlist.all()
+        self.assertEqual(wishlist, [])
+        for dummy_wishlist in WishlistFactory.create_batch(5):
+            dummy_wishlist.create()
+        # Assert that there are not 5 accounts in the database
+        all_wishlists = Wishlist.all()
+        self.assertEqual(len(all_wishlists), 5)
+
+    def test_find_by_name(self):
+        """It should Find a wishlist by name"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Fetch it back by name
+        same_wishlist = Wishlist.find_by_name(wishlist.name)[0]
+        self.assertEqual(same_wishlist.id, wishlist.id)
+        self.assertEqual(same_wishlist.name, wishlist.name)
+
+    def test_find_by_user(self):
+        """It should Find a wishlist by username"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Fetch it back by name
+        same_wishlist = Wishlist.find_for_user(wishlist.username)[0]
+        self.assertEqual(same_wishlist.id, wishlist.id)
+        self.assertEqual(same_wishlist.username, wishlist.username)
+
+    def test_serialize_a_wishlist(self):
+        """It should Serialize a Wishlist with WishlistItem"""
+        wishlist = WishlistFactory()
+        item = WishListItemFactory()
+        wishlist.wishlist_items.append(item)
+        serial_wishlist = wishlist.serialize()
+        self.assertEqual(serial_wishlist["id"], wishlist.id)
+        self.assertEqual(serial_wishlist["name"], wishlist.name)
+        self.assertEqual(serial_wishlist["username"], wishlist.username)
+        self.assertEqual(serial_wishlist["description"], wishlist.description)
+        self.assertEqual(serial_wishlist["created_at"], wishlist.created_at.isoformat())
+        self.assertEqual(
+            serial_wishlist["last_updated_at"], wishlist.last_updated_at.isoformat()
+        )
+        self.assertEqual(serial_wishlist["is_public"], wishlist.is_public)
+        self.assertEqual(len(serial_wishlist["wishlist_items"]), 1)
+
+        items = serial_wishlist["wishlist_items"]
+        self.assertEqual(items[0]["id"], item.id)
+        self.assertEqual(items[0]["wishlist_id"], item.wishlist_id)
+        self.assertEqual(items[0]["product_id"], item.product_id)
+        self.assertEqual(items[0]["product_name"], item.product_name)
+        self.assertEqual(items[0]["product_description"], item.product_description)
+        self.assertEqual(items[0]["product_price"], item.product_price)
+        self.assertEqual(items[0]["created_at"], item.created_at.isoformat())
+        self.assertEqual(items[0]["last_updated_at"], item.last_updated_at.isoformat())
+
+    def test_deserialize_a_wishlist(self):
+        """It should Deserialize a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.wishlist_items.append(WishListItemFactory())
+        wishlist.create()
+        serial_wishlist = wishlist.serialize()
+        new_wishlist = Wishlist()
+        new_wishlist.deserialize(serial_wishlist)
+        self.assertEqual(new_wishlist.name, wishlist.name)
+        self.assertEqual(new_wishlist.username, wishlist.username)
+        self.assertEqual(new_wishlist.is_public, wishlist.is_public)
+        self.assertEqual(new_wishlist.description, wishlist.description)
+        self.assertEqual(new_wishlist.created_at, wishlist.created_at.isoformat())
+        self.assertEqual(
+            new_wishlist.last_updated_at, wishlist.last_updated_at.isoformat()
+        )
+
+    def test_deserialize_with_key_error(self):
+        """It should not Deserialize a wishlist with a KeyError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, {})
+
+    def test_deserialize_with_type_error(self):
+        """It should not Deserialize a wishlist with a TypeError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, [])
+
+    def test_deserialize_item_key_error(self):
+        """It should not Deserialize an item with a KeyError"""
+        item = WishListItem()
+        self.assertRaises(DataValidationError, item.deserialize, {})
+
+    def test_deserialize_item_type_error(self):
+        """It should not Deserialize an item with a TypeError"""
+        item = WishListItem()
+        self.assertRaises(DataValidationError, item.deserialize, [])
+
+    def test_read_wishlist(self):
+        """It should Read a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Read it back
+        found_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(found_wishlist.id, wishlist.id)
+        self.assertEqual(found_wishlist.name, wishlist.name)
+        self.assertEqual(found_wishlist.description, wishlist.description)
+        self.assertEqual(found_wishlist.username, wishlist.username)
+        self.assertEqual(found_wishlist.created_at, wishlist.created_at)
+        self.assertEqual(found_wishlist.last_updated_at, wishlist.last_updated_at)
+        self.assertEqual(found_wishlist.is_public, wishlist.is_public)
+        self.assertEqual(found_wishlist.wishlist_items, [])
+

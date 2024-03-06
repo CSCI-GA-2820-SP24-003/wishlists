@@ -7,7 +7,7 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.common import status
-from service.models import db, Wishlist
+from service.models import db, Wishlist, WishListItem
 from .factories import WishlistFactory, WishListItemFactory
 
 # cspell: ignore psycopg testdb
@@ -45,6 +45,7 @@ class WishlistService(TestCase):
         """Runs before each test"""
         self.client = app.test_client()
         db.session.query(Wishlist).delete()  # clean up the last tests
+        db.session.query(WishListItem).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -201,6 +202,24 @@ class WishlistService(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
+    def test_bad_request(self):
+        """It should not Create when sending the wrong data"""
+        resp = self.client.post(BASE_URL, json={"name": "not enough data"})
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_unsupported_media_type(self):
+        """It should not Create when sending wrong media type"""
+        wishlist = WishlistFactory()
+        resp = self.client.post(
+            BASE_URL, json=wishlist.serialize(), content_type="test/html"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.put(BASE_URL, json={"not": "today"})
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
     ######################################################################
     #  I T E M   T E S T   C A S E S   H E R E
     ######################################################################
@@ -334,6 +353,53 @@ class WishlistService(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_wishlist(self):
+        """It should Read a single wishlist"""
+        # get the id of a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], wishlist.name)
+        self.assertEqual(data["id"], wishlist.id)
+
+    def test_get_wishlist_not_found(self):
+        """It should not Read a wishlist that is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_wishlist_item(self):
+        """It should Delete a wishlist item from the wishlist if it exists"""
+        # get the id of an wishlist
+        wishlist = self._create_wishlists(1)[0]
+        wishlistItem = WishListItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=wishlistItem.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        wishlist_item_id = data["id"]
+
+        # send delete request
+        resp = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/{wishlist_item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # retrieve it back and make sure address is not there
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{wishlist_item_id}",
+            content_type="application/json",
+        )
+        
+
     
     def test_update_wishlist_item(self):
         """It should Update an item on a wishlist"""
