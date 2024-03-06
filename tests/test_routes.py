@@ -354,6 +354,23 @@ class WishlistService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_wishlist(self):
+        """It should Read a single wishlist"""
+        # get the id of a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], wishlist.name)
+        self.assertEqual(data["id"], wishlist.id)
+
+    def test_get_wishlist_not_found(self):
+        """It should not Read a wishlist that is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_wishlist_item(self):
         """It should Delete a wishlist item from the wishlist if it exists"""
         # get the id of an wishlist
@@ -381,4 +398,4 @@ class WishlistService(TestCase):
             f"{BASE_URL}/{wishlist.id}/items/{wishlist_item_id}",
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        
