@@ -23,7 +23,7 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete wishlist and wishlist items from the account in a e-commerce website.
 """
 
-from flask import jsonify, request, abort  # url_for
+from flask import jsonify, request, abort, url_for
 from flask import current_app as app  # Import Flask application
 from service.models import Wishlist, WishListItem
 from service.common import status  # HTTP Status Codes
@@ -38,8 +38,8 @@ def index():
     data = {
         "name": "Wishlist REST API service",
         "version": "1.0.0",
-        "description": "A RESTful API for managing user wishlists and wishlist items."
-        }
+        "description": "A RESTful API for managing user wishlists and wishlist items.",
+    }
 
     json_response = jsonify(data)
     return (json_response, status.HTTP_200_OK)
@@ -80,8 +80,8 @@ def create_wishlist():
     wishlist.create()
     message = wishlist.serialize()
     # TODO: set the location URL
-    # location_url = url_for("get_wishlist", wishlist_id=wishlist.id, _external=True)
-    location_url = "/wishlists/" + str(wishlist.id)
+    location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
+    # location_url = "/wishlists/" + str(wishlist.id)
     return (jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
 
 
@@ -136,6 +136,7 @@ def delete_wishlist(id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
 
 def check_content_type(content_type):
     """Checks that the media type is correct"""
@@ -196,8 +197,14 @@ def create_wishlist_item(wishlist_id):
 
     # Prepare a message to return
     message = item.serialize()
+    location_url = url_for(
+        "list_wishlist_items", wishlist_id=wishlist.id, item_id=item.id, _external=True
+    )
 
-    return jsonify(message), status.HTTP_201_CREATED
+    return (
+        jsonify(message),
+        status.HTTP_201_CREATED, {"Location": location_url}
+    )
 
 
 ######################################################################
@@ -280,6 +287,8 @@ def get_wishlists(wishlist_id):
         )
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
 #####################################################################
 # DELETE AN ITEM FROM WISHLIST
 ######################################################################
@@ -302,6 +311,7 @@ def delete_wishlist_item(wishlist_id, id):
         wishlist_item.delete()
 
     return "", status.HTTP_204_NO_CONTENT
+
 
 ######################################################################
 # UPDATE WISHLIST ITEMS
