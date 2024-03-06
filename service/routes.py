@@ -257,6 +257,7 @@ def get_wishlist_item(wishlist_id, id):
 
     return jsonify(item.serialize()), status.HTTP_200_OK
 
+
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
@@ -301,9 +302,10 @@ def delete_wishlist_item(wishlist_id, id):
 ######################################################################
 # UPDATE WISHLIST ITEMS
 ######################################################################
+
+
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
 def update_wishlist_items(wishlist_id, item_id):
-    
     """
     Update a Wishlist Item
     This endpoint will update a wishlist item based the body that is posted
