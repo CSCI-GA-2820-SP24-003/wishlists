@@ -23,7 +23,7 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete wishlist and wishlist items from the account in a e-commerce website.
 """
 
-from flask import jsonify, request, abort  # url_for
+from flask import jsonify, request, abort, url_for
 from flask import current_app as app  # Import Flask application
 from service.models import Wishlist, WishListItem
 from service.common import status  # HTTP Status Codes
@@ -35,10 +35,14 @@ from service.common import status  # HTTP Status Codes
 @app.route("/")
 def index():
     """Root URL response"""
-    return (
-        "Reminder: return some useful information in json format about the service here",
-        status.HTTP_200_OK,
-    )
+    data = {
+        "name": "Wishlist REST API service",
+        "version": "1.0.0",
+        "description": "A RESTful API for managing user wishlists and wishlist items.",
+    }
+
+    json_response = jsonify(data)
+    return (json_response, status.HTTP_200_OK)
 
 
 ######################################################################
@@ -76,8 +80,8 @@ def create_wishlist():
     wishlist.create()
     message = wishlist.serialize()
     # TODO: set the location URL
-    # location_url = url_for("get_wishlist", wishlist_id=wishlist.id, _external=True)
-    location_url = "/wishlists/" + str(wishlist.id)
+    location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
+    # location_url = "/wishlists/" + str(wishlist.id)
     return (jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
 
 
@@ -132,6 +136,7 @@ def delete_wishlist(id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
 
 def check_content_type(content_type):
     """Checks that the media type is correct"""
@@ -192,8 +197,14 @@ def create_wishlist_item(wishlist_id):
 
     # Prepare a message to return
     message = item.serialize()
+    location_url = url_for(
+        "list_wishlist_items", wishlist_id=wishlist.id, item_id=item.id, _external=True
+    )
 
-    return jsonify(message), status.HTTP_201_CREATED
+    return (
+        jsonify(message),
+        status.HTTP_201_CREATED, {"Location": location_url}
+    )
 
 
 ######################################################################
@@ -257,6 +268,7 @@ def get_wishlist_item(wishlist_id, id):
 
     return jsonify(item.serialize()), status.HTTP_200_OK
 
+
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
@@ -275,6 +287,8 @@ def get_wishlists(wishlist_id):
         )
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
 #####################################################################
 # DELETE AN ITEM FROM WISHLIST
 ######################################################################
@@ -297,3 +311,48 @@ def delete_wishlist_item(wishlist_id, id):
         wishlist_item.delete()
 
     return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# UPDATE WISHLIST ITEMS
+######################################################################
+
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_wishlist_items(wishlist_id, item_id):
+    """
+    Update a Wishlist Item
+    This endpoint will update a wishlist item based the body that is posted
+    """
+    app.logger.info(
+        "Request to update a wishlist item %s for Wishlist id: %s",
+        (item_id, wishlist_id),
+    )
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    # see if the wishlist exists and abort if it doesn't
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+    # See if the item exists and abort if it doesn't
+    item = WishListItem.find(item_id)
+    if not item:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' could not be found in the Wishlist with id '{wishlist_id}'.",
+        )
+    if wishlist_id != item.wishlist_id:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id='{id}' could not be found inside wishlist with id='{wishlist_id}",
+        )
+    # Update from the json in the body of the request
+    data = request.get_json()
+    original_data = item.serialize()
+    data["created_at"] = original_data["created_at"]
+    item.deserialize(data)
+    item.id = item_id
+    item.update()
+    return jsonify(item.serialize()), status.HTTP_200_OK

@@ -159,3 +159,27 @@ class TestWishListItem(TestCase):
         """It should not Deserialize an item with a TypeError"""
         item = WishListItem()
         self.assertRaises(DataValidationError, item.deserialize, [])
+
+    def test_update_wishlist_item(self):
+        """It should Update a wishlist item"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        item = WishListItemFactory(wishlist=wishlist)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        old_item = wishlist.wishlist_items[0]
+        print("%r", old_item)
+        self.assertEqual(old_item.product_description, item.product_description)
+        # Change the product_description
+        old_item.product_description = "NO"
+        wishlist.update()
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        item = wishlist.wishlist_items[0]
+        self.assertEqual(item.product_description, "NO")
