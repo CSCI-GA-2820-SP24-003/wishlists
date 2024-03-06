@@ -193,7 +193,9 @@ class TestWishlist(TestCase):
         self.assertEqual(serial_wishlist["username"], wishlist.username)
         self.assertEqual(serial_wishlist["description"], wishlist.description)
         self.assertEqual(serial_wishlist["created_at"], wishlist.created_at.isoformat())
-        self.assertEqual(serial_wishlist["last_updated_at"], wishlist.last_updated_at.isoformat())
+        self.assertEqual(
+            serial_wishlist["last_updated_at"], wishlist.last_updated_at.isoformat()
+        )
         self.assertEqual(serial_wishlist["is_public"], wishlist.is_public)
         self.assertEqual(len(serial_wishlist["wishlist_items"]), 1)
 
@@ -220,7 +222,9 @@ class TestWishlist(TestCase):
         self.assertEqual(new_wishlist.is_public, wishlist.is_public)
         self.assertEqual(new_wishlist.description, wishlist.description)
         self.assertEqual(new_wishlist.created_at, wishlist.created_at.isoformat())
-        self.assertEqual(new_wishlist.last_updated_at, wishlist.last_updated_at.isoformat())
+        self.assertEqual(
+            new_wishlist.last_updated_at, wishlist.last_updated_at.isoformat()
+        )
 
     def test_deserialize_with_key_error(self):
         """It should not Deserialize a wishlist with a KeyError"""
@@ -241,3 +245,19 @@ class TestWishlist(TestCase):
         """It should not Deserialize an item with a TypeError"""
         item = WishListItem()
         self.assertRaises(DataValidationError, item.deserialize, [])
+
+    def test_read_wishlist(self):
+        """It should Read a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Read it back
+        found_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(found_wishlist.id, wishlist.id)
+        self.assertEqual(found_wishlist.name, wishlist.name)
+        self.assertEqual(found_wishlist.description, wishlist.description)
+        self.assertEqual(found_wishlist.username, wishlist.username)
+        self.assertEqual(found_wishlist.created_at, wishlist.created_at)
+        self.assertEqual(found_wishlist.last_updated_at, wishlist.last_updated_at)
+        self.assertEqual(found_wishlist.is_public, wishlist.is_public)
+        self.assertEqual(found_wishlist.wishlist_items, [])

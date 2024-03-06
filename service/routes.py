@@ -252,3 +252,23 @@ def get_addresses(wishlist_id, id):
         )
 
     return jsonify(item.serialize()), status.HTTP_200_OK
+
+
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlists(wishlist_id):
+    """
+    Retrieve a single Wishlist
+
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for Wishlist with id: %s", wishlist_id)
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
