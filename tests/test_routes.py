@@ -243,6 +243,18 @@ class WishlistService(TestCase):
         self.assertEqual(data["product_description"], item.product_description)
         self.assertEqual(float(data["product_price"]), float(item.product_price))
 
+    def test_add_items_in_invalid_wishlist(self):
+        """It should not be able to add an item in invalid wishlists"""
+        wishlist = self._create_wishlists(1)[0]
+        item = WishListItemFactory()
+        wishlist_id = wishlist.id + 1
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist_id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+    
     def test_list_wishlist_items(self):
         """It should Get a list of Addresses"""
         # add two addresses to account
@@ -267,6 +279,21 @@ class WishlistService(TestCase):
 
         data = resp.get_json()
         self.assertEqual(len(data), 2)
+
+    def test_list_invalide_wishlists_items(self):
+        """It should not get a list of items from an invalid wishlists"""
+        wishlist = self._create_wishlists(1)[0]
+        item = WishListItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        wishlist_id = wishlist.id + 1
+        resp = self.client.get(f"{BASE_URL}/{wishlist_id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
     def test_read_item(self):
         """It should read an item from wishlist"""
