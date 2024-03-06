@@ -35,10 +35,14 @@ from service.common import status  # HTTP Status Codes
 @app.route("/")
 def index():
     """Root URL response"""
-    return (
-        "Welcome to the base URL for Wishlists service",
-        status.HTTP_200_OK,
-    )
+    data = {
+        "name": "Wishlist REST API service",
+        "version": "1.0.0",
+        "description": "A RESTful API for managing user wishlists and wishlist items."
+        }
+
+    json_response = jsonify(data)
+    return (json_response, status.HTTP_200_OK)
 
 
 ######################################################################
