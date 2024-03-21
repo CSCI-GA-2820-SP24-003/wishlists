@@ -1,4 +1,8 @@
+'''
+Factory file to create fake datasets of wishlists and wishlists_items for ease in application testing
+'''
 from datetime import datetime, timezone
+
 from decimal import Decimal
 import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime

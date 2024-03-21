@@ -121,8 +121,6 @@ class WishlistService(TestCase):
             "Last updated date does not match",
         )
 
-        # TODO: Add more tests when Read Wishlist is implemented
-
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
         # create a Wishlist to update
@@ -340,7 +338,7 @@ class WishlistService(TestCase):
         logging.debug(data)
         item_id = data["id"]
 
-        """Case 1 : Wishlist does not exist"""
+        # Case 1 : Wishlist does not exist
         dummy_wishlist_id = -10
         resp = self.client.get(
             f"{BASE_URL}/{dummy_wishlist_id}/items/{item_id}",
@@ -348,7 +346,7 @@ class WishlistService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-        """Case 2 : Item does not exist"""
+        # Case 2 : Item does not exist
         dummy_item_id = -10
         resp = self.client.get(
             f"{BASE_URL}/{wishlist.id}/items/{dummy_item_id}",
@@ -401,10 +399,10 @@ class WishlistService(TestCase):
         """It should Delete a wishlist item from the wishlist if it exists"""
         # get the id of an wishlist
         wishlist = self._create_wishlists(1)[0]
-        wishlistItem = WishListItemFactory()
+        wishlist_item = WishListItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
-            json=wishlistItem.serialize(),
+            json=wishlist_item.serialize(),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -471,7 +469,7 @@ class WishlistService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-        """Case 1: Wishlist does not exist"""
+        # Case 1: Wishlist does not exist
         data = resp.get_json()
         logging.debug(data)
         wishlist_id = wishlist.id + 1
@@ -483,9 +481,7 @@ class WishlistService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-        """
-        Case 2: Item does not exist in the wishlist
-        """
+        # Case 2: Item does not exist in the wishlist
         item_id = item_id+1
         data["product_description"] = ".."
         # send the update back
