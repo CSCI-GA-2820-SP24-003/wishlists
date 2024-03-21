@@ -36,6 +36,7 @@ DATABASE_URI = os.getenv(
 class TestWishListItem(TestCase):
     """WishlistItem Model Test Cases"""
 
+    # pylint: disable=duplicate-code
     @classmethod
     def setUpClass(cls):
         """This runs once before the entire test suite"""
@@ -45,17 +46,20 @@ class TestWishListItem(TestCase):
         app.logger.setLevel(logging.CRITICAL)
         app.app_context().push()
 
+    # pylint: disable=duplicate-code
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
         db.session.close()
 
+    # pylint: disable=duplicate-code
     def setUp(self):
         """This runs before each test"""
         db.session.query(Wishlist).delete()  # clean up the last tests
         db.session.query(WishListItem).delete()  # clean up the last tests
         db.session.commit()
 
+    # pylint: disable=duplicate-code
     def tearDown(self):
         """This runs after each test"""
         db.session.remove()

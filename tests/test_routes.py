@@ -26,6 +26,7 @@ BASE_URL = "/wishlists"
 class WishlistService(TestCase):
     """REST API Server Tests"""
 
+    # pylint: disable=duplicate-code
     @classmethod
     def setUpClass(cls):
         """Run once before all tests"""
@@ -36,11 +37,13 @@ class WishlistService(TestCase):
         app.logger.setLevel(logging.CRITICAL)
         app.app_context().push()
 
+    # pylint: disable=duplicate-code
     @classmethod
     def tearDownClass(cls):
         """Run once after all tests"""
         db.session.close()
 
+    # pylint: disable=duplicate-code
     def setUp(self):
         """Runs before each test"""
         self.client = app.test_client()
