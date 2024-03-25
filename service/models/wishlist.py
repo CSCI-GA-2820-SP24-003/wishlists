@@ -52,7 +52,10 @@ class Wishlist(db.Model, PersistentBase):
     description = db.Column(db.String(255))
     username = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
-    last_updated_at = db.Column(db.DateTime, default=db.func.now())
+    # last_updated_at = db.Column(db.DateTime, default=db.func.now())
+    last_updated_at = db.Column(
+        db.DateTime, default=db.func.now(), onupdate=db.func.now(), nullable=False
+    )
     is_public = db.Column(db.Boolean, default=False)
     wishlist_items = db.relationship(
         "WishListItem", backref="wishlist", passive_deletes=True
@@ -96,8 +99,8 @@ class Wishlist(db.Model, PersistentBase):
             self.username = data["username"]
             self.description = data.get("description", None)
             self.is_public = data.get("is_public", False)
-            self.created_at = data.get("created_at", str(db.func.now()))
-            self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
+            # self.created_at = data.get("created_at", str(db.func.now()))
+            # self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
             # handle inner list of addresses
             wishlist_items_items = data.get("wishlist_items", [])
             for json_wishlists_items in wishlist_items_items:
