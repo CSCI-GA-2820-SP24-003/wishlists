@@ -25,7 +25,7 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    # Uncomment ports to access routes.pydatabase from your computer (optional)
+    # Uncomment ports to access database from your computer (optional)
     # ports:
     #   - 5432:5432
     environment:
