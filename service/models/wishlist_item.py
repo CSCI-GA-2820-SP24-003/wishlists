@@ -52,10 +52,7 @@ class WishListItem(db.Model, PersistentBase):
     product_description = db.Column(db.String(255), nullable=False)
     product_price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
-    # last_updated_at = db.Column(db.DateTime, default=db.func.now())
-    last_updated_at = db.Column(
-        db.DateTime, default=db.func.now(), onupdate=db.func.now(), nullable=False
-    )
+    last_updated_at = db.Column(db.DateTime, default=db.func.now())
 
     def __repr__(self):
         return (
@@ -104,8 +101,8 @@ class WishListItem(db.Model, PersistentBase):
             self.product_description = data["product_description"]
             self.product_price = data["product_price"]
             # Optional fields with defaults
-            # self.created_at = data.get("created_at", str(db.func.now()))
-            # self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
+            self.created_at = data.get("created_at", str(db.func.now()))
+            self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
         except KeyError as error:
             raise DataValidationError(
                 "Invalid data: missing " + error.args[0]
