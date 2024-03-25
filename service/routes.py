@@ -79,7 +79,7 @@ def create_wishlist():
     wishlist.deserialize(request.get_json())
     wishlist.create()
     message = wishlist.serialize()
-    # TODO: set the location URL
+    # set the location URL
     location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
     # location_url = "/wishlists/" + str(wishlist.id)
     return (jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
@@ -118,6 +118,7 @@ def update_wishlist(wishlist_id):
 # DELETE A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:id>", methods=["DELETE"])
+# pylint: disable=redefined-builtin
 def delete_wishlist(id):
     """
     Delete a wishlist
@@ -235,6 +236,7 @@ def list_wishlist_items(wishlist_id):
 
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["GET"])
+# pylint: disable=redefined-builtin
 def get_wishlist_item(wishlist_id, id):
     """
     This endpoint returns just an item
@@ -295,6 +297,7 @@ def get_wishlists(wishlist_id):
 
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["DELETE"])
+# pylint: disable=redefined-builtin
 def delete_wishlist_item(wishlist_id, id):
     """
     Delete a wishlist item

@@ -55,6 +55,7 @@ class TestWishlist(TestCase):
     def test_create_a_wishlist(self):
         """It should create a wishlist and assert that it exists"""
         fake_wishlist = WishlistFactory()
+        # pylint: disable=unexpected-keyword-arg
         wishlist = Wishlist(
             name=fake_wishlist.name,
             is_public=fake_wishlist.is_public,
