@@ -104,9 +104,9 @@ def update_wishlist(wishlist_id):
         )
 
     # Update from the json in the body of the request
-    original_data = wishlist.serialize()
+    # original_data = wishlist.serialize()
     data = request.get_json()
-    data["created_at"] = original_data["created_at"]
+    # data["created_at"] = original_data["created_at"]
     wishlist.deserialize(data)
     wishlist.id = wishlist_id
     wishlist.update()
@@ -350,8 +350,8 @@ def update_wishlist_items(wishlist_id, item_id):
         )
     # Update from the json in the body of the request
     data = request.get_json()
-    original_data = item.serialize()
-    data["created_at"] = original_data["created_at"]
+    # original_data = item.serialize()
+    # data["created_at"] = original_data["created_at"]
     item.deserialize(data)
     item.id = item_id
     item.update()
