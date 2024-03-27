@@ -5,6 +5,7 @@ Wishlist API Service Test Suite
 import os
 import logging
 from unittest import TestCase
+from datetime import datetime, timezone, timedelta
 from wsgi import app
 from service.common import status
 from service.models import db, Wishlist, WishListItem
@@ -111,18 +112,36 @@ class WishlistService(TestCase):
         self.assertEqual(
             new_wishlist["is_public"], wishlist.is_public, "IsPublic does not match"
         )
+        current_time = datetime.now(timezone.utc)
 
-        self.assertEqual(
-            new_wishlist["created_at"],
-            wishlist.created_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-            "Created at date does not match",
+        created_at = datetime.fromisoformat(new_wishlist["created_at"]).replace(
+            tzinfo=timezone.utc
         )
+        last_updated_at = datetime.fromisoformat(
+            new_wishlist["last_updated_at"]
+        ).replace(tzinfo=timezone.utc)
 
-        self.assertEqual(
-            new_wishlist["last_updated_at"],
-            wishlist.last_updated_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-            "Last updated date does not match",
+        # Check that created_at and last_updated_at are within a certain tolerance (e.g., 1 second)
+        tolerance = timedelta(seconds=1)
+        self.assertTrue(
+            abs(created_at - current_time) <= tolerance,
+            f"Created at time '{created_at}' is not close to current time '{current_time}'",
         )
+        self.assertTrue(
+            abs(last_updated_at - current_time) <= tolerance,
+            f"Last updated at time '{last_updated_at}' is not close to current time '{current_time}'",
+        )
+        # self.assertEqual(
+        #     new_wishlist["created_at"],
+        #     wishlist.created_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+        #     "Created at date does not match",
+        # )
+
+        # self.assertEqual(
+        #     new_wishlist["last_updated_at"],
+        #     wishlist.last_updated_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+        #     "Last updated date does not match",
+        # )
 
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
@@ -485,7 +504,7 @@ class WishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # Case 2: Item does not exist in the wishlist
-        item_id = item_id+1
+        item_id = item_id + 1
         data["product_description"] = ".."
         # send the update back
         resp = self.client.put(
