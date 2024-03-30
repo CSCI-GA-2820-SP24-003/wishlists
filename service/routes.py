@@ -25,7 +25,7 @@ and Delete wishlist and wishlist items from the account in a e-commerce website.
 
 from flask import jsonify, request, abort, url_for
 from flask import current_app as app  # Import Flask application
-from service.models import Wishlist, WishListItem
+from service.models import Wishlist, WishlistItem
 from service.common import status  # HTTP Status Codes
 
 
@@ -117,17 +117,17 @@ def update_wishlist(wishlist_id):
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:id>", methods=["DELETE"])
+@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 # pylint: disable=redefined-builtin
-def delete_wishlist(id):
+def delete_wishlist(wishlist_id):
     """
     Delete a wishlist
     This endpoint will delete a Wishlist based on the id specified in the path
     """
-    app.logger.info("Request to delete account with id: %s", id)
+    app.logger.info("Request to delete account with id: %s", wishlist_id)
 
     # Retrieve the wishlist from DB and delete it
-    wishlist_to_delete = Wishlist.find(id)
+    wishlist_to_delete = Wishlist.find(wishlist_id)
     if wishlist_to_delete:
         wishlist_to_delete.delete()
 
@@ -187,7 +187,7 @@ def create_wishlist_item(wishlist_id):
         )
 
     # Create an address from the json data
-    item = WishListItem()
+    item = WishlistItem()
     item_data = request.get_json()
     item_data["wishlist_id"] = wishlist_id
     item.deserialize(item_data)
@@ -232,14 +232,15 @@ def list_wishlist_items(wishlist_id):
 ######################################################################
 
 
-@app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["GET"])
+@app.route("/wishlists/<int:wishlist_id>/items/<int:wishlistitem_id>", methods=["GET"])
 # pylint: disable=redefined-builtin
-def get_wishlist_item(wishlist_id, id):
+def get_wishlist_item(wishlist_id, wishlistitem_id):
     """
     This endpoint returns just an item
     """
     app.logger.info(
-        "Request to retrieve item %s for Wishlist id: %s", (id, wishlist_id)
+        "Request to retrieve item %s for Wishlist id: %s",
+        (wishlistitem_id, wishlist_id),
     )
 
     # See if the wishlist exists and abort if it doesn't
@@ -251,18 +252,18 @@ def get_wishlist_item(wishlist_id, id):
         )
 
     # See if the item exists and abort if it doesn't
-    item = WishListItem.find(id)
+    item = WishlistItem.find(wishlistitem_id)
     if not item:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id='{id}' could not be found.",
+            f"Item with id='{wishlistitem_id}' could not be found.",
         )
 
     # An extra check to verify that item belongs to wishlist id provided
     if wishlist_id != item.wishlist_id:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id='{id}' could not be found inside wishlist with id='{wishlist_id}",
+            f"Item with id='{wishlistitem_id}' could not be found inside wishlist with id='{wishlist_id}",
         )
 
     return jsonify(item.serialize()), status.HTTP_200_OK
@@ -293,20 +294,23 @@ def get_wishlists(wishlist_id):
 ######################################################################
 
 
-@app.route("/wishlists/<int:wishlist_id>/items/<int:id>", methods=["DELETE"])
+@app.route(
+    "/wishlists/<int:wishlist_id>/items/<int:wishlistitem_id>", methods=["DELETE"]
+)
 # pylint: disable=redefined-builtin
-def delete_wishlist_item(wishlist_id, id):
+def delete_wishlist_item(wishlist_id, wishlistitem_id):
     """
     Delete a wishlist item
 
     This endpoint will delete a wishlist item based the id specified in the path
     """
     app.logger.info(
-        "Request to delete wishlist item  %s for wishlist  id: %s", (id, wishlist_id)
+        "Request to delete wishlist item  %s for wishlist  id: %s",
+        (wishlistitem_id, wishlist_id),
     )
 
     # See if the wishlist item  exists and delete it if it does
-    wishlist_item = WishListItem.find(id)
+    wishlist_item = WishlistItem.find(wishlistitem_id)
     if wishlist_item:
         wishlist_item.delete()
 
@@ -318,15 +322,15 @@ def delete_wishlist_item(wishlist_id, id):
 ######################################################################
 
 
-@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
-def update_wishlist_items(wishlist_id, item_id):
+@app.route("/wishlists/<int:wishlist_id>/items/<int:wishlistitem_id>", methods=["PUT"])
+def update_wishlist_items(wishlist_id, wishlistitem_id):
     """
     Update a Wishlist Item
     This endpoint will update a wishlist item based the body that is posted
     """
     app.logger.info(
         "Request to update a wishlist item %s for Wishlist id: %s",
-        (item_id, wishlist_id),
+        (wishlistitem_id, wishlist_id),
     )
     check_content_type("application/json")
     wishlist = Wishlist.find(wishlist_id)
@@ -337,11 +341,11 @@ def update_wishlist_items(wishlist_id, item_id):
             f"Wishlist with id '{wishlist_id}' could not be found.",
         )
     # See if the item exists and abort if it doesn't
-    item = WishListItem.find(item_id)
+    item = WishlistItem.find(wishlistitem_id)
     if not item:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' could not be found in the Wishlist with id '{wishlist_id}'.",
+            f"Item with id '{wishlistitem_id}' could not be found in the Wishlist with id '{wishlist_id}'.",
         )
     if wishlist_id != item.wishlist_id:
         abort(
@@ -353,6 +357,6 @@ def update_wishlist_items(wishlist_id, item_id):
     # original_data = item.serialize()
     # data["created_at"] = original_data["created_at"]
     item.deserialize(data)
-    item.id = item_id
+    item.id = wishlistitem_id
     item.update()
     return jsonify(item.serialize()), status.HTTP_200_OK

@@ -27,7 +27,7 @@ logger = logging.getLogger("flask.app")
 ######################################################################
 #  W I S H L I S T  I T E M   M O D E L
 ######################################################################
-class WishListItem(db.Model, PersistentBase):
+class WishlistItem(db.Model, PersistentBase):
     """
     Class that represents a wishlist item
 

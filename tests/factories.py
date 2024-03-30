@@ -1,12 +1,13 @@
-'''
+"""
 Factory file to create fake datasets of wishlists and wishlists_items for ease in application testing
-'''
+"""
+
 from datetime import datetime, timezone
 
 from decimal import Decimal
 import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime
-from service.models import Wishlist, WishListItem
+from service.models import Wishlist, WishlistItem
 
 
 class WishlistFactory(factory.Factory):
@@ -37,14 +38,14 @@ class WishlistFactory(factory.Factory):
             self.wishlist_items = extracted
 
 
-class WishListItemFactory(factory.Factory):
+class WishlistItemFactory(factory.Factory):
     """Creates fake wishlist items that you don't have to feed"""
 
     # pylint: disable=too-few-public-methods
     class Meta:
         """Maps factory to wishlist item data model"""
 
-        model = WishListItem
+        model = WishlistItem
 
     id = factory.Sequence(lambda n: n)
     wishlist_id = factory.Faker("random_int", min=1, max=9999)

@@ -7,8 +7,8 @@ import logging
 from unittest import TestCase
 from unittest.mock import patch
 from wsgi import app
-from service.models import Wishlist, WishListItem, DataValidationError, db
-from tests.factories import WishlistFactory, WishListItemFactory
+from service.models import Wishlist, WishlistItem, DataValidationError, db
+from tests.factories import WishlistFactory, WishlistItemFactory
 
 # cspell: ignore psycopg testdb, psycopg
 
@@ -41,7 +41,7 @@ class TestWishlist(TestCase):
     def setUp(self):
         """This runs before each test"""
         db.session.query(Wishlist).delete()  # clean up the last tests
-        db.session.query(WishListItem).delete()  # clean up the last tests
+        db.session.query(WishlistItem).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -186,7 +186,7 @@ class TestWishlist(TestCase):
     def test_serialize_a_wishlist(self):
         """It should Serialize a Wishlist with WishlistItem"""
         wishlist = WishlistFactory()
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         wishlist.wishlist_items.append(item)
         serial_wishlist = wishlist.serialize()
         self.assertEqual(serial_wishlist["id"], wishlist.id)
@@ -213,7 +213,7 @@ class TestWishlist(TestCase):
     def test_deserialize_a_wishlist(self):
         """It should Deserialize a wishlist"""
         wishlist = WishlistFactory()
-        wishlist.wishlist_items.append(WishListItemFactory())
+        wishlist.wishlist_items.append(WishlistItemFactory())
         wishlist.create()
         serial_wishlist = wishlist.serialize()
         new_wishlist = Wishlist()
@@ -239,10 +239,10 @@ class TestWishlist(TestCase):
 
     def test_deserialize_item_key_error(self):
         """It should not Deserialize an item with a KeyError"""
-        item = WishListItem()
+        item = WishlistItem()
         self.assertRaises(DataValidationError, item.deserialize, {})
 
     def test_deserialize_item_type_error(self):
         """It should not Deserialize an item with a TypeError"""
-        item = WishListItem()
+        item = WishlistItem()
         self.assertRaises(DataValidationError, item.deserialize, [])

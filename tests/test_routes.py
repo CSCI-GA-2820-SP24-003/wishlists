@@ -8,8 +8,8 @@ from unittest import TestCase
 from datetime import datetime, timezone, timedelta
 from wsgi import app
 from service.common import status
-from service.models import db, Wishlist, WishListItem
-from .factories import WishlistFactory, WishListItemFactory
+from service.models import db, Wishlist, WishlistItem
+from .factories import WishlistFactory, WishlistItemFactory
 
 # cspell: ignore psycopg testdb
 
@@ -49,7 +49,7 @@ class WishlistService(TestCase):
         """Runs before each test"""
         self.client = app.test_client()
         db.session.query(Wishlist).delete()  # clean up the last tests
-        db.session.query(WishListItem).delete()  # clean up the last tests
+        db.session.query(WishlistItem).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
@@ -247,7 +247,7 @@ class WishlistService(TestCase):
     def test_add_item(self):
         """It should Add an item to a wishlist"""
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -266,7 +266,7 @@ class WishlistService(TestCase):
     def test_add_items_in_invalid_wishlist(self):
         """It should not be able to add an item in invalid wishlists"""
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         wishlist_id = wishlist.id + 1
         resp = self.client.post(
             f"{BASE_URL}/{wishlist_id}/items",
@@ -279,7 +279,7 @@ class WishlistService(TestCase):
         """It should Get a list of Addresses"""
         # add two addresses to account
         wishlist = self._create_wishlists(1)[0]
-        items_list = WishListItemFactory.create_batch(2)
+        items_list = WishlistItemFactory.create_batch(2)
 
         # Create address 1
         resp = self.client.post(
@@ -303,7 +303,7 @@ class WishlistService(TestCase):
     def test_list_invalid_wishlists_items(self):
         """It should not get a list of items from an invalid wishlists"""
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -317,7 +317,7 @@ class WishlistService(TestCase):
     def test_read_item(self):
         """It should read an item from wishlist"""
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -348,7 +348,7 @@ class WishlistService(TestCase):
         """It should not be able to read a non-existent item"""
 
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -381,7 +381,7 @@ class WishlistService(TestCase):
         wishlist = self._create_wishlists(1)[0]
         wishlist2 = self._create_wishlists(1)[0]
         self.assertNotEqual(wishlist.id, wishlist2.id)
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -421,7 +421,7 @@ class WishlistService(TestCase):
         """It should Delete a wishlist item from the wishlist if it exists"""
         # get the id of an wishlist
         wishlist = self._create_wishlists(1)[0]
-        wishlist_item = WishListItemFactory()
+        wishlist_item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=wishlist_item.serialize(),
@@ -449,7 +449,7 @@ class WishlistService(TestCase):
         """It should Update an item on a wishlist"""
         # create a item inside a wishlist
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -483,7 +483,7 @@ class WishlistService(TestCase):
         """It should not Update an non-existing item on a wishlist"""
         # create a item and wishlist
         wishlist = self._create_wishlists(1)[0]
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),
@@ -520,7 +520,7 @@ class WishlistService(TestCase):
         wishlist = self._create_wishlists(1)[0]
         wishlist2 = self._create_wishlists(1)[0]
         self.assertNotEqual(wishlist.id, wishlist2.id)
-        item = WishListItemFactory()
+        item = WishlistItemFactory()
         resp = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=item.serialize(),

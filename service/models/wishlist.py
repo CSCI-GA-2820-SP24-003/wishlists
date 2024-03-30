@@ -22,7 +22,7 @@ Persistent Base class for Wishlist database CRUD functions
 
 import logging
 from .persistent_base import db, PersistentBase, DataValidationError
-from .wishlist_item import WishListItem
+from .wishlist_item import WishlistItem
 
 logger = logging.getLogger("flask.app")
 
@@ -58,7 +58,7 @@ class Wishlist(db.Model, PersistentBase):
     )
     is_public = db.Column(db.Boolean, default=False)
     wishlist_items = db.relationship(
-        "WishListItem", backref="wishlist", passive_deletes=True
+        "WishlistItem", backref="wishlist", passive_deletes=True
     )
 
     def __repr__(self):
@@ -104,7 +104,7 @@ class Wishlist(db.Model, PersistentBase):
             # handle inner list of addresses
             wishlist_items_items = data.get("wishlist_items", [])
             for json_wishlists_items in wishlist_items_items:
-                wishlist_item = WishListItem()
+                wishlist_item = WishlistItem()
                 wishlist_item.deserialize(json_wishlists_items)
                 self.wishlist_items.append(wishlist_item)
         except KeyError as error:
