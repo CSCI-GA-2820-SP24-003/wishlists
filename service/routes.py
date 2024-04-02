@@ -360,3 +360,35 @@ def update_wishlist_items(wishlist_id, wishlistitem_id):
     item.id = wishlistitem_id
     item.update()
     return jsonify(item.serialize()), status.HTTP_200_OK
+
+
+# ---------------------------------------------------------------------
+#                A C T I O N    R O U T E S
+# ---------------------------------------------------------------------
+
+######################################################################
+# PUBLISH A WISHLIST
+######################################################################
+
+@app.route("/wishlists/<int:wishlist_id>/publish", methods=["PUT"])
+def publish_wishlist(wishlist_id):
+    """
+    Publishes a Wishlist
+
+    This endpoint will make a Wishlist publicly visible for all users
+    """
+    app.logger.info("Request to publish wishlist with id: %s", wishlist_id)
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
+
+    # publishing the wishlist
+    wishlist.is_public = True
+    wishlist.update()
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
