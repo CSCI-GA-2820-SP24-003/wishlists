@@ -540,3 +540,35 @@ class WishlistService(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    ######################################################################
+    #  A C T I O N   R O U T E   T E S T   C A S E S   H E R E
+    ######################################################################
+
+    def test_publish_wishlist(self):
+        """It should publish a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.is_public = False
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        wishlist_id = wishlist.id
+
+        resp = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["is_public"], True)
+
+        # testing idempotency
+        resp2 = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
+
+        self.assertEqual(data, resp2.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_publish_wishlist_for_non_existent_wishlist(self):
+        """It should return 404 status code when publishing a wishlist that does not exist"""
+        resp = self.client.put(f"{BASE_URL}/99999/publish")
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
