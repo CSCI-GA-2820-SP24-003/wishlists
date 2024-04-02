@@ -565,9 +565,10 @@ class WishlistService(TestCase):
         resp2 = self.client.put(f"{BASE_URL}/{wishlist_id}/publish")
 
         self.assertEqual(data, resp2.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_publish_wishlist_for_non_existent_wishlist(self):
-        """It returns 404 status code when publishing a wishlist that does not exist"""
-        resp = self.client.put(f"{BASE_URL}/-99999/publish")
+        """It should return 404 status code when publishing a wishlist that does not exist"""
+        resp = self.client.put(f"{BASE_URL}/99999/publish")
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

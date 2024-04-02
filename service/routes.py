@@ -384,7 +384,7 @@ def publish_wishlist(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' was not found.",
+            f"Wishlist with id '{wishlist_id}' was not found."
         )
 
     # publishing the wishlist
