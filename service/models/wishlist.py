@@ -14,7 +14,7 @@
 # limitations under the License.
 ######################################################################
 
-# cspell: ignore Rofrano
+# cspell: ignore Rofrano, onupdate, backref
 
 """
 Persistent Base class for Wishlist database CRUD functions

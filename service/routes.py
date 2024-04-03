@@ -14,7 +14,7 @@
 # limitations under the License.
 ######################################################################
 
-# cspell: ignore jsonify, Rofrano
+# cspell: ignore jsonify, Rofrano, wishlistitem
 
 """
 Wishlists Service
@@ -57,12 +57,19 @@ def index():
 def list_wishlists():
     """Returns all of the Wishlists"""
     app.logger.info("Request for Wishlists list")
-    accounts = []
+    wishlists = []
 
-    accounts = Wishlist.all()
+    name = request.args.get("name")
+    username = request.args.get("username")
+    if name:
+        wishlists = Wishlist.find_by_name(name)
+    elif username:
+        wishlists = Wishlist.find_for_user(username)
+    else:
+        wishlists = Wishlist.all()
 
     # Return as an array of dictionaries
-    results = [account.serialize() for account in accounts]
+    results = [wishlist.serialize() for wishlist in wishlists]
 
     return jsonify(results), status.HTTP_200_OK
 
@@ -221,8 +228,15 @@ def list_wishlist_items(wishlist_id):
             f"Wishlist with id '{wishlist_id}' could not be found.",
         )
 
+    product_name = request.args.get("product_name")
+    items = []
+    if product_name:
+        items = WishlistItem.find_by_product_name(product_name, wishlist_id)
+    else:
+        items = wishlist.wishlist_items
+
     # Get the items for the wishlist
-    results = [items.serialize() for items in wishlist.wishlist_items]
+    results = [item.serialize() for item in items]
 
     return jsonify(results), status.HTTP_200_OK
 
