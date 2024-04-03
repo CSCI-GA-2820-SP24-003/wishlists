@@ -78,19 +78,34 @@ def list_wishlists():
 def create_wishlist():
     """
     Creates a Wishlist
-    This endpoint will create a Wishlist based the data in the body that is posted
+    This endpoint will create a Wishlist based on the data in the body that is posted.
     """
     app.logger.info("Request to Create a wishlist")
     check_content_type("application/json")
+    
+    wishlist_data = request.get_json()
+    
+    # Extract username and name from the request data
+    username = wishlist_data.get('username')
+    name = wishlist_data.get('name')
+    
+    # Check if a wishlist with the same username and name already exists
+    existing_wishlist = Wishlist.query.filter_by(username=username, name=name).first()
+    
+    if existing_wishlist:
+        # If a wishlist with the same username and name already exists, return an error response
+        message = {"error": "A wishlist with the same name already exists for this user."}
+        return jsonify(message), status.HTTP_409_CONFLICT
+
+    # If no existing wishlist is found, proceed to create a new one
     wishlist = Wishlist()
-    wishlist.deserialize(request.get_json())
+    wishlist.deserialize(wishlist_data)
     wishlist.create()
     message = wishlist.serialize()
-    # set the location URL
-    location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
-    # location_url = "/wishlists/" + str(wishlist.id)
-    return (jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
 
+    # Set the location URL
+    location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
+    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlist(wishlist_id):
