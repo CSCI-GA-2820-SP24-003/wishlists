@@ -11,7 +11,7 @@ from service.common import status
 from service.models import db, Wishlist, WishlistItem
 from .factories import WishlistFactory, WishlistItemFactory
 
-# cspell: ignore psycopg testdb
+# cspell: ignore psycopg testdb, idempotency
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -572,3 +572,61 @@ class WishlistService(TestCase):
         resp = self.client.put(f"{BASE_URL}/99999/publish")
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_wishlist_by_name(self):
+        """It should Get a Wishlist by Name"""
+        wishlists = self._create_wishlists(3)
+        resp = self.client.get(BASE_URL, query_string=f"name={wishlists[1].name}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data[0]["name"], wishlists[1].name)
+
+    def test_get_wishlist_by_username(self):
+        """It should Get a Wishlist by Username"""
+        wishlists = self._create_wishlists(3)
+        resp = self.client.get(BASE_URL, query_string=f"username={wishlists[1].username}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data[0]["username"], wishlists[1].username)
+
+    def test_get_wishlist_items_by_product_name(self):
+        """It should Get a Wishlist Items by Product name"""
+
+        wishlist = self._create_wishlists(1)[0]
+        items_list = WishlistItemFactory.create_batch(5)
+
+        for item in items_list:
+            resp = self.client.post(
+                f"{BASE_URL}/{wishlist.id}/items", json=item.serialize()
+            )
+            self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        item_1_name = items_list[1].product_name
+
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items", query_string=f"product_name={item_1_name}")
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["product_name"], item_1_name)
+
+        wishlist2 = self._create_wishlists(1)[0]
+        items_list2 = WishlistItemFactory.create_batch(2)
+        items_list3 = WishlistItemFactory.create_batch(3)
+        for item in items_list2:
+            item.product_name = "dog"
+            resp = self.client.post(
+                f"{BASE_URL}/{wishlist2.id}/items", json=item.serialize()
+            )
+        for item in items_list3:
+            resp = self.client.post(
+                f"{BASE_URL}/{wishlist2.id}/items", json=item.serialize()
+            )
+        # search items by name "dog"
+        resp = self.client.get(f"{BASE_URL}/{wishlist2.id}/items", query_string="product_name=dog")
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["product_name"], "dog")
+        self.assertEqual(data[1]["product_name"], "dog")

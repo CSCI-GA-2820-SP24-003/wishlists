@@ -1,3 +1,4 @@
+# cspell: ignore jsonify, Rofrano, psycopg
 ######################################################################
 # Copyright 2016, 2024 John J. Rofrano. All Rights Reserved.
 #
@@ -187,3 +188,26 @@ class TestWishlistItem(TestCase):
         wishlist = Wishlist.find(wishlist.id)
         item = wishlist.wishlist_items[0]
         self.assertEqual(item.product_description, "NO")
+
+    def test_find_by_product_name(self):
+        """It should Find a wishlist item by product_name"""
+        wishlist = WishlistFactory()
+        for _ in range(5):
+            new_item = WishlistItemFactory(wishlist=wishlist)
+            wishlist.wishlist_items.append(new_item)
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        item = wishlist.wishlist_items[0]
+        item2 = wishlist.wishlist_items[1]
+        new_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(new_wishlist.wishlist_items[0].product_name, item.product_name)
+        self.assertEqual(len(new_wishlist.wishlist_items), 5)
+        self.assertEqual(
+            new_wishlist.wishlist_items[1].product_name, item2.product_name
+        )
+        # Fetch it back by name
+        found_item = WishlistItem.find_by_product_name(item.product_name, new_wishlist.id)
+        self.assertEqual(found_item[0].product_name, item.product_name)
