@@ -584,7 +584,9 @@ class WishlistService(TestCase):
     def test_get_wishlist_by_username(self):
         """It should Get a Wishlist by Username"""
         wishlists = self._create_wishlists(3)
-        resp = self.client.get(BASE_URL, query_string=f"username={wishlists[1].username}")
+        resp = self.client.get(
+            BASE_URL, query_string=f"username={wishlists[1].username}"
+        )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data[0]["username"], wishlists[1].username)
@@ -603,7 +605,10 @@ class WishlistService(TestCase):
 
         item_1_name = items_list[1].product_name
 
-        resp = self.client.get(f"{BASE_URL}/{wishlist.id}/items", query_string=f"product_name={item_1_name}")
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items",
+            query_string=f"product_name={item_1_name}",
+        )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
@@ -623,10 +628,44 @@ class WishlistService(TestCase):
                 f"{BASE_URL}/{wishlist2.id}/items", json=item.serialize()
             )
         # search items by name "dog"
-        resp = self.client.get(f"{BASE_URL}/{wishlist2.id}/items", query_string="product_name=dog")
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist2.id}/items", query_string="product_name=dog"
+        )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["product_name"], "dog")
         self.assertEqual(data[1]["product_name"], "dog")
+
+    ##############################################################################
+    #  A C T I O N   R O U T E  U N P U B L I S H  T E S T   C A S E S   H E R E
+    ##############################################################################
+
+    def test_unpublish_wishlist(self):
+        """It should unpublish a wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.is_public = True
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        wishlist_id = wishlist.id
+
+        resp = self.client.put(f"{BASE_URL}/{wishlist_id}/unpublish")
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(data["id"], wishlist_id)
+        self.assertEqual(data["is_public"], False)
+
+        # testing idempotency
+        resp2 = self.client.put(f"{BASE_URL}/{wishlist_id}/unpublish")
+
+        self.assertEqual(data, resp2.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_unpublish_wishlist_for_non_existent_wishlist(self):
+        """It should return 404 status code when unpublishing a wishlist that does not exist"""
+        resp = self.client.put(f"{BASE_URL}/99999/unpublish")
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

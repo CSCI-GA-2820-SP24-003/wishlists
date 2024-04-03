@@ -384,6 +384,7 @@ def update_wishlist_items(wishlist_id, wishlistitem_id):
 # PUBLISH A WISHLIST
 ######################################################################
 
+
 @app.route("/wishlists/<int:wishlist_id>/publish", methods=["PUT"])
 def publish_wishlist(wishlist_id):
     """
@@ -398,11 +399,39 @@ def publish_wishlist(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' was not found."
+            f"Wishlist with id '{wishlist_id}' was not found.",
         )
 
     # publishing the wishlist
     wishlist.is_public = True
+    wishlist.update()
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# UNPUBLISH A WISHLIST
+######################################################################
+
+
+@app.route("/wishlists/<int:wishlist_id>/unpublish", methods=["PUT"])
+def unpublish_wishlist(wishlist_id):
+    """
+    Unpublishes a Wishlist
+    This endpoint will make a wishlist not visible to the public anymore
+    """
+    app.logger.info("Request to unpublish wishlist with id: %s", wishlist_id)
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
+
+    # publishing the wishlist
+    wishlist.is_public = False
     wishlist.update()
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
