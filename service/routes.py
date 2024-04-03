@@ -82,16 +82,16 @@ def create_wishlist():
     """
     app.logger.info("Request to Create a wishlist")
     check_content_type("application/json")
-    
+
     wishlist_data = request.get_json()
-    
+
     # Extract username and name from the request data
     username = wishlist_data.get('username')
     name = wishlist_data.get('name')
-    
+
     # Check if a wishlist with the same username and name already exists
     existing_wishlist = Wishlist.query.filter_by(username=username, name=name).first()
-    
+
     if existing_wishlist:
         # If a wishlist with the same username and name already exists, return an error response
         message = {"error": "A wishlist with the same name already exists for this user."}
@@ -106,6 +106,7 @@ def create_wishlist():
     # Set the location URL
     location_url = url_for("list_wishlists", wishlist_id=wishlist.id, _external=True)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlist(wishlist_id):
