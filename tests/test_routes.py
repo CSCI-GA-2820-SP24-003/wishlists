@@ -85,63 +85,100 @@ class WishlistService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_create_wishlist(self):
-        """It should create a new wishlist"""
+    def test_create_wishlist_and_duplicate(self):
+        """It should create a new wishlist and prevent creating a duplicate"""
 
+        # First, create a wishlist
         wishlist = WishlistFactory()
         resp = self.client.post(
             BASE_URL, json=wishlist.serialize(), content_type="application/json"
         )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, "Failed to create a wishlist")
 
-        # Make sure location header is set
-        location = resp.headers.get("Location", None)
-        self.assertIsNotNone(location)
+        # Verify the location header is set
+        location = resp.headers.get("Location")
+        self.assertIsNotNone(location, "Location header is missing")
 
-        # Check the data is correct
+        # Verify the wishlist data
         new_wishlist = resp.get_json()
-        self.assertEqual(new_wishlist["name"], wishlist.name, "Names does not match")
-        self.assertEqual(
-            new_wishlist["description"],
-            wishlist.description,
-            "Description does not match",
-        )
-        self.assertEqual(
-            new_wishlist["username"], wishlist.username, "Username does not match"
-        )
-        self.assertEqual(
-            new_wishlist["is_public"], wishlist.is_public, "IsPublic does not match"
-        )
+        self.assertEqual(new_wishlist["name"], wishlist.name, "Names do not match")
+        self.assertEqual(new_wishlist["description"], wishlist.description, "Descriptions do not match")
+        self.assertEqual(new_wishlist["username"], wishlist.username, "Usernames do not match")
+        self.assertEqual(new_wishlist["is_public"], wishlist.is_public, "is_public flag does not match")
+
+        # Check created_at and last_updated_at timing
         current_time = datetime.now(timezone.utc)
+        created_at = datetime.fromisoformat(new_wishlist["created_at"]).replace(tzinfo=timezone.utc)
+        last_updated_at = datetime.fromisoformat(new_wishlist["last_updated_at"]).replace(tzinfo=timezone.utc)
 
-        created_at = datetime.fromisoformat(new_wishlist["created_at"]).replace(
-            tzinfo=timezone.utc
-        )
-        last_updated_at = datetime.fromisoformat(
-            new_wishlist["last_updated_at"]
-        ).replace(tzinfo=timezone.utc)
-
-        # Check that created_at and last_updated_at are within a certain tolerance (e.g., 1 second)
         tolerance = timedelta(seconds=1)
-        self.assertTrue(
-            abs(created_at - current_time) <= tolerance,
-            f"Created at time '{created_at}' is not close to current time '{current_time}'",
-        )
-        self.assertTrue(
-            abs(last_updated_at - current_time) <= tolerance,
-            f"Last updated at time '{last_updated_at}' is not close to current time '{current_time}'",
-        )
-        # self.assertEqual(
-        #     new_wishlist["created_at"],
-        #     wishlist.created_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-        #     "Created at date does not match",
-        # )
+        self.assertTrue(abs(created_at - current_time) <= tolerance, "Created_at timestamp is not as expected")
+        self.assertTrue(abs(last_updated_at - current_time) <= tolerance, "Last_updated_at timestamp is not as expected")
 
-        # self.assertEqual(
-        #     new_wishlist["last_updated_at"],
-        #     wishlist.last_updated_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-        #     "Last updated date does not match",
-        # )
+        # Attempt to create a duplicate wishlist
+        duplicate_resp = self.client.post(
+            BASE_URL, json=wishlist.serialize(), content_type="application/json"
+        )
+        # Expecting a 409 Conflict status code for a duplicate
+        self.assertEqual(duplicate_resp.status_code, status.HTTP_409_CONFLICT, "Duplicate wishlist was unexpectedly created")
+
+    # def test_create_wishlist(self):
+    #     """It should create a new wishlist"""
+
+    #     wishlist = WishlistFactory()
+    #     resp = self.client.post(
+    #         BASE_URL, json=wishlist.serialize(), content_type="application/json"
+    #     )
+    #     self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+    #     # Make sure location header is set
+    #     location = resp.headers.get("Location", None)
+    #     self.assertIsNotNone(location)
+
+    #     # Check the data is correct
+    #     new_wishlist = resp.get_json()
+    #     self.assertEqual(new_wishlist["name"], wishlist.name, "Names does not match")
+    #     self.assertEqual(
+    #         new_wishlist["description"],
+    #         wishlist.description,
+    #         "Description does not match",
+    #     )
+    #     self.assertEqual(
+    #         new_wishlist["username"], wishlist.username, "Username does not match"
+    #     )
+    #     self.assertEqual(
+    #         new_wishlist["is_public"], wishlist.is_public, "IsPublic does not match"
+    #     )
+    #     current_time = datetime.now(timezone.utc)
+
+    #     created_at = datetime.fromisoformat(new_wishlist["created_at"]).replace(
+    #         tzinfo=timezone.utc
+    #     )
+    #     last_updated_at = datetime.fromisoformat(
+    #         new_wishlist["last_updated_at"]
+    #     ).replace(tzinfo=timezone.utc)
+
+    #     # Check that created_at and last_updated_at are within a certain tolerance (e.g., 1 second)
+    #     tolerance = timedelta(seconds=1)
+    #     self.assertTrue(
+    #         abs(created_at - current_time) <= tolerance,
+    #         f"Created at time '{created_at}' is not close to current time '{current_time}'",
+    #     )
+    #     self.assertTrue(
+    #         abs(last_updated_at - current_time) <= tolerance,
+    #         f"Last updated at time '{last_updated_at}' is not close to current time '{current_time}'",
+    #     )
+    #     # self.assertEqual(
+    #     #     new_wishlist["created_at"],
+    #     #     wishlist.created_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+    #     #     "Created at date does not match",
+    #     # )
+
+    #     # self.assertEqual(
+    #     #     new_wishlist["last_updated_at"],
+    #     #     wishlist.last_updated_at.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+    #     #     "Last updated date does not match",
+    #     # )
 
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
