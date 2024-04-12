@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wishlists RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="static/images/newapp-icon.png">
+    <link rel="stylesheet" href="static/css/cerulean_bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+          <h1>Wishlists REST API Service</h1>
+      </div>
+
+      <!-- Flash Message -->
+      <div class="table-responsive">
+        <table class="table">
+          <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+        </table>
+      </div>
+
+      <!-- FORM -->
+      <div class="col-md-12" id="form_data">
+        <h3>Create, Retrieve, Update, and Delete a Wishlist</h3>
+        <div class="well">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="id">Wishlist ID:</label>
+              <div class="col-sm-6">
+                <input type="number" class="form-control" id="id" placeholder="Enter ID of Wishlist">
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
+                <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+
+          <div class="form-horizontal">
+
+            <!-- Username -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="username">Username:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="username" placeholder="Enter Username">
+              </div>
+            </div>
+
+            <!-- Wishlist Name -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="name">Wishlist Name:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="name" placeholder="Enter name for Wishlist">
+              </div>
+            </div>
+
+            <!-- Is Public -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="is_public">Public Wishlist:</label>
+              <div class="col-sm-10">
+                <select class="form-control" id="is_public">
+                  <option value="true" >True</option>
+                  <option value="false" selected>False</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="description">Description:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="description" placeholder="Enter Description">
+              </div>
+            </div>
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+        </div> <!-- end well -->
+      </div> <!-- end Form -->
+
+      <!-- Search Results -->
+      <div class="table-responsive col-md-12" id="search_results">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th class="col-md-1">Wishlist ID</th>
+            <th class="col-md-1">Username</th>
+            <th class="col-md-4">Wishlist Name</th>
+            <th class="col-md-4">Public Wishlist</th>
+            <th class="col-md-4">Wishlist Description</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+
+      <footer>
+        <br><br>
+        <p>&copy; NYU DevOps Company 2024</p>
+      </footer>
+
+    </div> <!-- container -->
+
+  <script type="text/javascript" src = "static/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
+
+  <!-- YOUR REST API -->
+  <script type="text/javascript" src="static/js/rest_api.js"></script>
+
+  </body>
+</html>
