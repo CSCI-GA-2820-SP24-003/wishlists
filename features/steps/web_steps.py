@@ -56,6 +56,7 @@ def step_impl(context, element_name, text_string):
     element_id = element_name.lower().replace(" ", "_")
     element = context.driver.find_element(By.ID, element_id)
     element.clear()
+    # logging.info("Setting %s to %s", element_id, text_string)
     element.send_keys(text_string)
 
 
@@ -66,11 +67,11 @@ def step_impl(context, text, element_name):
     element.select_by_visible_text(text)
 
 
-# @then('I should see "{text}" in the "{element_name}" dropdown')
-# def step_impl(context, text, element_name):
-#     element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
-#     element = Select(context.driver.find_element(By.ID, element_id))
-#     assert(element.first_selected_option.text == text)
+@then('I should see "{text}" in the "{element_name}" dropdown')
+def step_impl(context, text, element_name):
+    element_id = element_name.lower().replace(" ", "_")
+    element = Select(context.driver.find_element(By.ID, element_id))
+    assert element.first_selected_option.text == text
 
 
 @then('the "{element_name}" field should be empty')

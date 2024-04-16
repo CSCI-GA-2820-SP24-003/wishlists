@@ -16,10 +16,10 @@ Scenario: The server is running
 
 Scenario: Create a Wishlist
     When I visit the "Home Page"
-    And I set the "Username" to "s1"
-    And I set the "Name" to "w1"
+    And I set the "Username" to "user1"
+    And I set the "Name" to "wishlist 1"
     And I select "True" in the "Is Public" dropdown
-    And I set the "Description" to "d1"
+    And I set the "Description" to "description 1"
     And I press the "Create" button
     Then I should see the message "Success"
     When I copy the "ID" field
@@ -31,7 +31,7 @@ Scenario: Create a Wishlist
     When I paste the "ID" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
-    And I should see "s1" in the "Username" field
-    And I should see "w1" in the "Name" field
+    And I should see "user1" in the "Username" field
+    And I should see "wishlist 1" in the "Name" field
     And I should see "True" in the "Is Public" dropdown
-    And I should see "d1" in the "Description" field
+    And I should see "description 1" in the "Description" field
