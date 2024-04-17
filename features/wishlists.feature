@@ -36,6 +36,23 @@ Feature: The Wishlist service back-end
         And I should see "True" in the "Is Public" dropdown
         And I should see "description 1" in the "Description" field
 
+    Scenario: List all wishlists
+        When I visit the "Home Page"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "Wish List" in the results
+        And I should see "My Wish List" in the results
+
+    Scenario: Search for wishlists
+        When I visit the "Home Page"
+        And I set the "Username" to "user2"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "user2" in the results
+        And I should see "Wish List" in the results
+        And I should not see "My Wish List" in the results
+        And I should not see "user3" in the results
+
     Scenario: Update a Wishlist
         When I visit the "Home Page"
         And I set the "Username" to "user2"

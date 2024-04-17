@@ -160,4 +160,71 @@ $(function () {
         });
     });
 
+    // ****************************************
+    // Search for a wishlist
+    // ****************************************
+
+    $("#search-btn").click(function () {
+
+        let name = $("#name").val();
+        let username = $("#username").val();
+
+        let queryString = ""
+
+        if (name) {
+            queryString += 'name=' + name
+        }
+        if (username) {
+            if (queryString.length > 0) {
+                queryString += '&username=' + username
+            } else {
+                queryString += 'username=' + username
+            }
+        }
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/wishlists?${queryString}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-2">Wishlist ID</th>'
+            table += '<th class="col-md-2">Username</th>'
+            table += '<th class="col-md-2">Wishlist Name</th>'
+            table += '<th class="col-md-2">Public Wishlist</th>'
+            table += '<th class="col-md-2">Wishlist Description</th>'
+            table += '</tr></thead><tbody>'
+            let firstWishlist = "";
+            for(let i = 0; i < res.length; i++) {
+                let wishlist = res[i];
+                table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.username}</td><td>${wishlist.name}</td><td>${wishlist.is_public}</td><td>${wishlist.description}</td></tr>`;
+                if (i == 0) {
+                    firstWishlist = wishlist;
+                }
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+
+            // copy the first result to the form
+            if (firstWishlist != "") {
+                update_form_data(firstWishlist)
+            }
+
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
 })
