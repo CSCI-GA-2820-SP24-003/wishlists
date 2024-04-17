@@ -37,6 +37,15 @@ def index():
     """ Base URL for Wishlists service """
     return app.send_static_file("index.html")
 
+
+############################################################
+# HEALTH ENDPOINT
+############################################################
+@app.route("/health")
+def health():
+    """Health Status"""
+    return {"status": "OK"}, status.HTTP_200_OK
+
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S   F O R   W I S H L I S T
 ######################################################################
