@@ -118,4 +118,4 @@ class WishlistItem(db.Model, PersistentBase):
     def find_by_product_name(cls, product_name, wishlist_id):
         """Return all items matching product_name"""
         logger.info("Processing lookup for item %s ...", product_name)
-        return cls.query.filter(cls.wishlist_id == wishlist_id, cls.product_name == product_name)
+        return cls.query.filter(cls.wishlist_id == wishlist_id, cls.product_name == product_name).all()

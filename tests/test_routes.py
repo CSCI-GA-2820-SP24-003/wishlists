@@ -247,8 +247,8 @@ class WishlistService(TestCase):
             "created_at": "2024-02-27 00:00:00",
             "last_updated_at": "2024-02-27 00:00:00",
         }
-        resp = self.client.put(
-            "/wishlists",
+        resp = self.client.post(
+            "/api/wishlists",
             query_string=wishlist_dict,
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
@@ -631,7 +631,7 @@ class WishlistService(TestCase):
         self.assertEqual(data[0]["username"], wishlists[1].username)
 
     def test_get_wishlist_items_by_product_name(self):
-        """It should Get a Wishlist Items by Product name"""
+        """It should Get Wishlist Items by Product name"""
 
         wishlist = self._create_wishlists(1)[0]
         items_list = WishlistItemFactory.create_batch(5)
