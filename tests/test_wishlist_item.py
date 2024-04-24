@@ -1,4 +1,4 @@
-# cspell: ignore jsonify, Rofrano, psycopg
+# cspell: ignore jsonify, Rofrano, psycopg, testdb
 ######################################################################
 # Copyright 2016, 2024 John J. Rofrano. All Rights Reserved.
 #

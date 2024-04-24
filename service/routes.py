@@ -23,7 +23,6 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete wishlist and wishlist items from the account in a e-commerce website.
 """
 
-# from flask import jsonify, request, abort, url_for
 from flask import request
 from flask import current_app as app  # Import Flask application
 from flask_restx import Resource, fields, reqparse
