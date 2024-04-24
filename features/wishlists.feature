@@ -91,3 +91,16 @@ Feature: The Wishlist service back-end
         And I should see "False" in the "Is Public" dropdown
         And I should see "wishlist 2 updated" in the "Name" field
         And I should see "description 2 updated" in the "Description" field
+
+    Scenario: Delete a Wishlist
+        When I visit the "Home Page"
+        And I press the "Search" button
+        And I copy the "ID" field
+        And I press the "Clear" button
+        And I paste the "ID" field
+        And I press the "Delete" button
+        Then I should see the message "Wishlist has been Deleted!"
+        When I press the "Clear" button
+        And I paste the "ID" field
+        And I press the "Retrieve" button
+        Then I should not see "Success"
