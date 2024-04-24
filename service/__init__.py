@@ -24,6 +24,22 @@ from flask_restx import Api
 from service import config
 from service.common import log_handlers
 
+# NOTE: Do not change the order of this code
+# The Flask app must be created
+# BEFORE you import modules that depend on it !!!
+
+# Document the type of authorization required
+authorizations = {
+    "apikey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key"
+    }
+}
+
+# Will be initialize when app is created
+api = None  # pylint: disable=invalid-name
+
 
 ############################################################
 # Initialize the Flask instance
