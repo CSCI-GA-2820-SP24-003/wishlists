@@ -241,7 +241,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`,
+            url: `${BASE_URL}/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })
