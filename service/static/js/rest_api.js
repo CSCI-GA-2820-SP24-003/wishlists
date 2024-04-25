@@ -1,5 +1,7 @@
 $(function () {
 
+    let BASE_URL = "/api/wishlists";
+
     // ****************************************
     //  U T I L I T Y   F U N C T I O N S
     // ****************************************
@@ -68,7 +70,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "POST",
-            url: "/wishlists",
+            url: `${BASE_URL}`,
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -95,7 +97,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists/${wishlist_id}`,
+            url: `${BASE_URL}/${wishlist_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -145,7 +147,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "PUT",
-            url: "/wishlists/" + id,
+            url: BASE_URL + "/" + id,
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -186,7 +188,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists?${queryString}`,
+            url: `${BASE_URL}?${queryString}`,
             contentType: "application/json",
             data: ''
         })
@@ -239,7 +241,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`,
+            url: `${BASE_URL}/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })

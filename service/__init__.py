@@ -20,8 +20,25 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_restx import Api
 from service import config
 from service.common import log_handlers
+
+# NOTE: Do not change the order of this code
+# The Flask app must be created
+# BEFORE you import modules that depend on it !!!
+
+# Document the type of authorization required
+authorizations = {
+    "apikey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key"
+    }
+}
+
+# Will be initialize when app is created
+api = None  # pylint: disable=invalid-name
 
 
 ############################################################
@@ -33,6 +50,24 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(config)
 
+    app.url_map.strict_slashes = False
+
+######################################################################
+# Configure Swagger before initializing it
+######################################################################
+    global api
+
+    api = Api(
+        app,
+        version="1.0.0",
+        title="Wishlist Demo REST API Service",
+        description="This is a sample Wishlist server.",
+        default="wishlists",
+        default_label="Wishlist operations",
+        doc="/apidocs",  # default also could use doc='/apidocs/'
+        prefix="/api",
+    )
+
     # Initialize Plugins
     # pylint: disable=import-outside-toplevel
     from service.models import db
@@ -40,7 +75,7 @@ def create_app():
 
     with app.app_context():
         # Dependencies require we import the routes AFTER the Flask app is created
-        # pylint: disable=wrong-import-position, wrong-import-order, unused-import
+        # pylint: disable=wrong-import-position, wrong-import-order, unused-import, cyclic-import
         from service import routes, models  # noqa: F401 E402
         from service.common import error_handlers, cli_commands  # noqa: F401, E402
 

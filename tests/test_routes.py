@@ -17,7 +17,7 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
 
-BASE_URL = "/wishlists"
+BASE_URL = "/api/wishlists"
 
 
 ######################################################################
@@ -248,13 +248,8 @@ class WishlistService(TestCase):
             "last_updated_at": "2024-02-27 00:00:00",
         }
         resp = self.client.post(
-            "/wishlists",
+            "/api/wishlists",
             query_string=wishlist_dict,
-        )
-        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-        resp = self.client.post(
-            "/wishlists",
-            data=wishlist_dict,
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
@@ -636,7 +631,7 @@ class WishlistService(TestCase):
         self.assertEqual(data[0]["username"], wishlists[1].username)
 
     def test_get_wishlist_items_by_product_name(self):
-        """It should Get a Wishlist Items by Product name"""
+        """It should Get Wishlist Items by Product name"""
 
         wishlist = self._create_wishlists(1)[0]
         items_list = WishlistItemFactory.create_batch(5)

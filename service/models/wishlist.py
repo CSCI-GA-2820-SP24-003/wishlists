@@ -111,7 +111,7 @@ class Wishlist(db.Model, PersistentBase):
             raise DataValidationError(
                 "Invalid Wishlist Item: missing " + error.args[0]
             ) from error
-        except TypeError as error:
+        except (ValueError, TypeError) as error:
             raise DataValidationError(
                 "Invalid Wishlist Item: body of request contained "
                 "bad or no data - " + error.args[0]
@@ -122,10 +122,10 @@ class Wishlist(db.Model, PersistentBase):
     def find_by_name(cls, name):
         """Return all wishlists with the given name"""
         logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
+        return cls.query.filter(cls.name == name).all()
 
     @classmethod
     def find_for_user(cls, username):
         """Return all wishlists for a specific user"""
         logger.info("Processing lookup for user %s ...", username)
-        return cls.query.filter(cls.username == username)
+        return cls.query.filter(cls.username == username).all()

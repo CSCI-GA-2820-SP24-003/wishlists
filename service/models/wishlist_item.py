@@ -104,14 +104,11 @@ class WishlistItem(db.Model, PersistentBase):
             self.product_name = data["product_name"]
             self.product_description = data["product_description"]
             self.product_price = data["product_price"]
-            # Optional fields with defaults
-            # self.created_at = data.get("created_at", str(db.func.now()))
-            # self.last_updated_at = data.get("last_updated_at", str(db.func.now()))
         except KeyError as error:
             raise DataValidationError(
                 "Invalid data: missing " + error.args[0]
             ) from error
-        except TypeError as error:
+        except (ValueError, TypeError) as error:
             raise DataValidationError(
                 "Invalid data: body of request contained bad or no data - " + str(error)
             ) from error
@@ -121,4 +118,4 @@ class WishlistItem(db.Model, PersistentBase):
     def find_by_product_name(cls, product_name, wishlist_id):
         """Return all items matching product_name"""
         logger.info("Processing lookup for item %s ...", product_name)
-        return cls.query.filter(cls.wishlist_id == wishlist_id, cls.product_name == product_name)
+        return cls.query.filter(cls.wishlist_id == wishlist_id, cls.product_name == product_name).all()
