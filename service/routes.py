@@ -240,16 +240,20 @@ class WishlistResource(Resource):
         # Update the wishlist with the data posted
         body = api.payload
 
-        # Checking for conflicts when renaming
-        existing_wishlist = Wishlist.query.filter_by(
-            username=body["username"], name=body["name"]
-        ).first()
+        # This causes errors when updating the wishlist
+        # I update the wishlist description then the name and username do not change.
+        # This will throw the 409 error
 
-        if existing_wishlist is not None:
-            abort(
-                status.HTTP_409_CONFLICT,
-                "Duplicate Wishlist",
-            )
+        # Checking for conflicts when renaming
+        # existing_wishlist = Wishlist.query.filter_by(
+        #     username=body["username"], name=body["name"]
+        # ).first()
+
+        # if existing_wishlist is not None:
+        #     abort(
+        #         status.HTTP_409_CONFLICT,
+        #         "Duplicate Wishlist",
+        #     )
 
         wishlist.deserialize(body)
         wishlist.update()
