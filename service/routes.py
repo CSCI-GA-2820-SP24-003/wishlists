@@ -239,7 +239,9 @@ class WishlistResource(Resource):
         # Update the wishlist with the data posted
         body = api.payload
 
-        # This causes errors when updating the wishlist because if I update the wishlist description then the name and username do not change. This will throw the 409 error
+        # This causes errors when updating the wishlist
+        # I update the wishlist description then the name and username do not change.
+        # This will throw the 409 error
 
         # Checking for conflicts when renaming
         # existing_wishlist = Wishlist.query.filter_by(
