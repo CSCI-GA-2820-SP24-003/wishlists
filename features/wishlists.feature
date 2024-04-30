@@ -104,3 +104,29 @@ Feature: The Wishlist service back-end
         And I paste the "ID" field
         And I press the "Retrieve" button
         Then I should not see "Success"
+
+    Scenario: Update a Wishlist
+        When I visit the "Home Page"
+        And I set the "Username" to "user3"
+        And I set the "Name" to "wishlist 3"
+        And I select "False" in the "Is Public" dropdown
+        And I set the "Description" to "description 3"
+        And I press the "Create" button
+        Then I should see the message "Success"
+        When I copy the "ID" field
+        And I press the "Clear" button
+        Then the "ID" field should be empty
+        And the "Username" field should be empty
+        And the "Name" field should be empty
+        And the "description" field should be empty
+        When I paste the "ID" field
+        And I press the "Publish" button
+        Then I should see the message "Wishlist has been Published!"
+        When  I press the "Clear" button
+        And I paste the "ID" field
+        And I press the "Retrieve" button
+        Then I should see the message "Success"
+        And I should see "user3" in the "Username" field
+        And I should see "wishlist 3" in the "Name" field
+        And I should see "True" in the "Is Public" dropdown
+        And I should see "description 3" in the "Description" field
