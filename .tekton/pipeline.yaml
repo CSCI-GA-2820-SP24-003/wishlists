@@ -145,7 +145,7 @@ spec:
     - name: behave
       params:
         - name: BASE_URL
-          value: $(BASE_URL)
+          value: $(params.BASE_URL)
         - name: WAIT_SECONDS
           value: '60'
         - name: DRIVER
