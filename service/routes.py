@@ -56,9 +56,8 @@ def health():
 
 # Define the Wishlist Item model so that the docs can reflect what can be sent
 create_item_model = api.model(
-    "Item",
+    "WishlistItem",
     {
-        "id": fields.Integer(required=True, description="Id of the wishlist item"),
         "wishlist_id": fields.Integer(required=True, description="Id of the wishlist"),
         "product_id": fields.Integer(required=True, description="Id of the product"),
         "product_name": fields.String(required=True, description="Name of the product"),
@@ -78,7 +77,7 @@ create_item_model = api.model(
 )
 
 item_model = api.inherit(
-    "ItemModel",
+    "WishlistItemModel",
     create_item_model,
     {
         "id": fields.Integer(
@@ -121,12 +120,6 @@ create_wishlist_model = api.model(
             required=False,
             description="Items in the wishlist",
         ),
-        "created_at": fields.DateTime(
-            required=True, description="Time when wishlist was created"
-        ),
-        "last_updated_at": fields.DateTime(
-            required=True, description="Time when wishlist was last updated"
-        ),
     },
 )
 
@@ -142,6 +135,14 @@ wishlist_model = api.inherit(
             fields.Nested(item_model),
             required=False,
             description="Items in the wishlist",
+        ),
+        "created_at": fields.DateTime(
+            readOnly=True,
+            description="Time when wishlist was created - assigned internally by the service",
+        ),
+        "last_updated_at": fields.DateTime(
+            readOnly=True,
+            description="Time when wishlist was last updated - assigned internally by the service",
         ),
     },
 )
@@ -197,7 +198,7 @@ class WishlistResource(Resource):
     @api.response(204, "Wishlist deleted")
     def delete(self, wishlist_id):
         """
-        Delete a PWishlist
+        Delete a Wishlist
 
         This endpoint will delete a wishlist based the id specified in the path
         """
@@ -464,7 +465,7 @@ class ItemResource(Resource):
     @api.marshal_with(item_model)
     def put(self, wishlist_id, item_id):
         """
-        Update a item
+        Update an item
         This endpoint updates the specified product from the given wishlist
         """
         app.logger.info(
