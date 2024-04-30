@@ -1,5 +1,5 @@
 
-FROM python:3.11-slim
+FROM quay.io/rofrano/python:3.11-slim
 
 # Create working folder and install dependencies
 WORKDIR /app
