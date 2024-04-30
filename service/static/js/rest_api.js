@@ -286,4 +286,34 @@ $(function () {
         });
     });
 
+
+    // ****************************************
+    // Unpublish a Wishlist
+    // ****************************************
+
+    $("#unpublish-btn").click(function () {
+        $("#flash_message").empty();
+        let wishlist_id = $("#id").val();
+        //alert if the wishlist id is empty
+        if (wishlist_id == "") {
+            flash_message("Please enter a Wishlist ID")
+            return
+        }
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `${BASE_URL}/${wishlist_id}/unpublish`,
+            contentType: "application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Wishlist has been unpublished!")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    });
 })
