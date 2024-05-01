@@ -2,16 +2,42 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
-[![Build Status](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions)
+[![TDD Build](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions/workflows/tdd.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions)
+[![BDD Build](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions/workflows/bdd.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP24-003/wishlists/actions)
 [![codecov](https://codecov.io/gh/CSCI-GA-2820-SP24-003/wishlists/graph/badge.svg?token=RTQHFQI85Z)](https://codecov.io/gh/CSCI-GA-2820-SP24-003/wishlists)
+
 
 ## Overview
 
-This service includes models, routes, and tests for managing wishlists and wishlist items. It allows users to create, update, delete, and view wishlists and wishlist items through a RESTful API coded in Flask. This project is designed with DevOps practices in mind, emphasizing automation, continuous integration, and providing a clear, comprehensive test suite to ensure code quality and reliability.
+This project involves designing, developing, and deploying wishlists and the associated wishlist items. We include models, routes, and tests to facilitate CRUD (create, read, update, delete) operations as well as the ability to list items by executing RESTful API requests coded in Flask. We strictly kept DevOps practices in mind, emphasizing automation, continuous integration, and providing a clear, comprehensive test suite to ensure code quality and reliability.
 
 **Tip: For a streamlined development experience, open the project in DevContainers with VSCode.** 
 
-## Contents
+## CD Deployment
+For deployment the docker image must be stored in the registry. Currently, the deployment build uses wishlist:latest tag. Follow these steps to successfully deploy wishlists application on your k8s cluster.
+
+```
+make cluster
+docker build -t wishlists:1.0 .
+docker tag wishlists:1.0 cluster-registry:32000/wishlists:1.0
+sudo sh -c "echo '127.0.0.1  cluster-registry' >> /etc/hosts"
+docker push cluster-registry:32000/wishlists:1.0
+kc apply -f k8s
+kc get all
+```
+
+After you do this all of the pods might take a while to run.
+After it is up check localhost:8080 our UI should come up.
+
+## Come and take a look at our Wishlist App!
+
+![Wishlist App](/app/service/static/images/App Deployment Screenshot.png)
+![Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/)
+![Pipeline Deployment](/app/service/static/images/Pipeline Deployment.png)
+![API Docs on Swagger](/app/service/static/images/Swagger Docs.png)
+![Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/apidocs)
+
+## Directory
 
 The project contains the following:
 
@@ -20,6 +46,8 @@ The project contains the following:
 .flaskenv           - Environment variables to configure Flask
 .gitattributes      - File to gix Windows CRLF issues
 .devcontainers/     - Folder with support for VSCode Remote Containers
+.github/workflows/  - Folder to run workflow jobs on GitHub Actions
+.tekton/            - Folder to store our pipeline artifacts
 dot-env-example     - copy to .env to use environment variables
 pyproject.toml      - Poetry list of Python libraries required by your code
 
@@ -37,6 +65,11 @@ service/                   - service python package
     ├── error_handlers.py  - HTTP error handling code
     ├── log_handlers.py    - logging setup code
     └── status.py          - HTTP status constants
+├── static
+    ├── css                - Folder containing all style sheets
+    ├── images             - Folder to house all static images
+    ├── js                 - Folder containing javascript files
+    ├── index.html         - Wishlist UI frontend file
 
 tests/                     - test cases package
 ├── __init__.py            - package initializer
@@ -47,41 +80,17 @@ tests/                     - test cases package
 └── test_wishlist.py       - test suite for wishlist model
 ```
 
-## API Endpoints
-
-```text
-Endpoint              Methods  Rule                              
---------------------  -------  ----------------------------------
-index                 GET      / 
-
-create_wishlist       POST     /wishlists                        
-create_wishlist_item  POST     /wishlists/<int:wishlist_id>/items
-
-read_wishlist         GET      /wishlists/<int:id>
-read_wishlist_item    GET      /wishlists/<int:wishlist_id>/items/<int:item_id>
-
-update_wishlist       PUT      /wishlists/<int:wishlist_id>
-update_wishlist_item  PUT      /wishlists/<int:wishlist_id>/items/<int:item_id>
-
-delete_wishlist       DELETE   /wishlists/<int:id>
-delete_wishlist_item  DELETE   /wishlists/<int:wishlist_id>/items/<int:item_id>
-
-list_wishlists        GET      /wishlists
-list_wishlist_items   GET      /wishlists/<int:wishlist_id>/items
-
-static                GET      /static/<path:filename>
-```
-
 ## Testing
 
+### Unit Testing 
 ```bash
 make test
 ```
 
-## Running the server
-
+### Integration Testing 
 ```bash
-make run
+honcho start
+behave
 ```
 
 ## License

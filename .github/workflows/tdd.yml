@@ -58,4 +58,7 @@ jobs:
       
       - name: Upload code coverage
         uses: codecov/codecov-action@v3.1.4
+        with: 
+          token: 08aa679d-585f-4fcf-b384-30b1a7eb03d8
+          slug: CSCI-GA-2820-SP24-003/wishlists
   
