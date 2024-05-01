@@ -31,11 +31,17 @@ After it is up check localhost:8080 our UI should come up.
 
 ## Come and take a look at our Wishlist App!
 
-![Wishlist App](/app/service/static/images/App Deployment Screenshot.png)
-![Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/)
-![Pipeline Deployment](/app/service/static/images/Pipeline Deployment.png)
-![API Docs on Swagger](/app/service/static/images/Swagger Docs.png)
-![Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/apidocs)
+### Wishlist APP
+[Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/)
+![Wishlist App](service/static/images/App_Deployment_Screenshot.png)
+
+### Pipeline Depployment
+![Pipeline Deployment](service/static/images/Pipeline_Deployment.png)
+
+### Swagger
+[Click here to check it out!](https://wishlists-animesh-ramesh-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/apidocs)
+![API Docs on Swagger](service/static/images/Swagger_Docs.png)
+
 
 ## Directory
 
