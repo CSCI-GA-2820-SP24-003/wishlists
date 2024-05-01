@@ -327,7 +327,7 @@ class WishlistCollection(Resource):
         data = api.payload
         wishlist.deserialize(data)
         existing_wishlist = Wishlist.query.filter_by(
-            username=data["username"], name=data["name"]
+            username=str(data["username"]), name=str(data["name"])
         ).first()
 
         if existing_wishlist:
