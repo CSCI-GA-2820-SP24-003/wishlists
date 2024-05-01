@@ -60,7 +60,7 @@ def create_app():
     api = Api(
         app,
         version="1.0.0",
-        title="Wishlist Demo REST API Service",
+        title="Wishlist REST API Service",
         description="This is a sample Wishlist server.",
         default="wishlists",
         default_label="Wishlist operations",

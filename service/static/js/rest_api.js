@@ -43,6 +43,8 @@ $(function () {
         table += '<th class="col-md-4">Wishlist Name</th>'
         table += '<th class="col-md-4">Public Wishlist</th>'
         table += '<th class="col-md-4">Wishlist Description</th>'
+        table += '<th class="col-md-4">Created At</th>'
+        table += '<th class="col-md-4">Last Updated At</th>'
         table += '</tr></thead><tbody>'
         table += '</tbody></table>';
         $("#search_results").append(table);
@@ -92,6 +94,11 @@ $(function () {
     $("#retrieve-btn").click(function () {
         clear_search_result();
         let wishlist_id = $("#id").val();
+
+        if (!wishlist_id) {
+            flash_message("Missing ID");
+            return; // Exit function if ID is missing
+        }
 
         $("#flash_message").empty();
 
@@ -203,11 +210,13 @@ $(function () {
             table += '<th class="col-md-2">Wishlist Name</th>'
             table += '<th class="col-md-2">Public Wishlist</th>'
             table += '<th class="col-md-2">Wishlist Description</th>'
+            table += '<th class="col-md-4">Created At</th>'
+            table += '<th class="col-md-4">Last Updated At</th>'
             table += '</tr></thead><tbody>'
             let firstWishlist = "";
             for(let i = 0; i < res.length; i++) {
                 let wishlist = res[i];
-                table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.username}</td><td>${wishlist.name}</td><td>${wishlist.is_public}</td><td>${wishlist.description}</td></tr>`;
+                table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.username}</td><td>${wishlist.name}</td><td>${wishlist.is_public}</td><td>${wishlist.description}</td><td>${wishlist.created_at}</td><td>${wishlist.last_updated_at}</td></tr>`;
                 if (i == 0) {
                     firstWishlist = wishlist;
                 }
